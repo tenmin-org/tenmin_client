@@ -1,0 +1,180 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { ShoppingBag, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { createOrder } from '@/api/orders';
+import { updateCartItem, removeFromCart, clearCart as clearCartApi } from '@/api/cart';
+import { useCartStore } from '@/store/cartStore';
+import { useUserStore } from '@/store/userStore';
+import { useTelegram } from '@/hooks/useTelegram';
+import { CartItemCard } from '@/components/CartItemCard';
+import { EmptyState } from '@/components/EmptyState';
+import { formatPrice } from '@/utils/format';
+
+function pluralize(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'товар';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'товара';
+  return 'товаров';
+}
+
+export function BasketPage() {
+  const navigate = useNavigate();
+  const { haptic } = useTelegram();
+  const items = useCartStore((s) => s.items);
+  const storeId = useUserStore((s) => s.storeId);
+  const getTotalPrice = useCartStore((s) => s.getTotalPrice);
+  const getTotalItems = useCartStore((s) => s.getTotalItems);
+
+  const [comment, setComment] = useState('');
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
+  const totalPrice = getTotalPrice();
+  const totalItems = getTotalItems();
+
+  const orderMutation = useMutation({
+    mutationFn: () => {
+      if (!storeId) throw new Error('No store selected');
+      return createOrder({
+        store_id: storeId,
+        items: items.map((i) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+        })),
+        comment: comment.trim() || undefined,
+      });
+    },
+    onSuccess: () => {
+      haptic?.notificationOccurred('success');
+      if (storeId) clearCartApi(storeId).catch(() => {});
+      useCartStore.getState().clearCart();
+      setOrderSuccess(true);
+    },
+    onError: () => {
+      haptic?.notificationOccurred('error');
+    },
+  });
+
+  const handleUpdate = async (productId: number, quantity: number) => {
+    useCartStore.getState().updateItem(productId, quantity);
+    try {
+      const cart = await updateCartItem(productId, quantity);
+      useCartStore.getState().setCart(cart);
+    } catch {
+      /* keep optimistic state */
+    }
+  };
+
+  const handleRemove = async (productId: number) => {
+    useCartStore.getState().removeItem(productId);
+    try {
+      const cart = await removeFromCart(productId);
+      useCartStore.getState().setCart(cart);
+    } catch {
+      /* keep optimistic state */
+    }
+  };
+
+  if (orderSuccess) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-[scale-in_0.3s_ease-out]">
+          <CheckCircle2 className="text-green-500" size={40} />
+        </div>
+        <h2 className="text-xl font-bold mb-2">Заказ создан!</h2>
+        <p className="text-gray-500 text-sm mb-8">
+          Ваш заказ принят и скоро будет обработан
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate('/orders')}
+            className="px-6 py-2.5 bg-green-500 text-white rounded-xl font-medium text-sm active:scale-[0.97] transition-transform"
+          >
+            Мои заказы
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium text-sm active:scale-[0.97] transition-transform"
+          >
+            В магазин
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <EmptyState
+          icon={<ShoppingBag size={48} />}
+          title="Корзина пуста"
+          description="Добавьте товары из каталога"
+          action={{ label: 'Перейти в каталог', onClick: () => navigate('/') }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="pb-44">
+      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <h1 className="font-semibold text-base">Корзина</h1>
+        </div>
+      </div>
+
+      <div className="px-4 pt-4 space-y-3">
+        {items.map((item) => (
+          <CartItemCard
+            key={item.product_id}
+            item={item}
+            onUpdate={handleUpdate}
+            onRemove={handleRemove}
+            disabled={orderMutation.isPending}
+          />
+        ))}
+      </div>
+
+      <div className="px-4 mt-4">
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Дополнительные товары, пожелания к доставке..."
+          className="w-full p-3.5 bg-white rounded-2xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-green-400 transition-colors"
+          rows={3}
+        />
+      </div>
+
+      <div className="fixed bottom-20 left-0 right-0 z-30 px-4 pb-4 pt-2 bg-gradient-to-t from-gray-50 via-gray-50">
+        <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-sm text-gray-500">
+              {totalItems} {pluralize(totalItems)}
+            </span>
+            <span className="text-lg font-bold">{formatPrice(totalPrice)}</span>
+          </div>
+          <button
+            onClick={() => orderMutation.mutate()}
+            disabled={orderMutation.isPending}
+            className="w-full py-3.5 bg-green-500 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform disabled:opacity-60"
+          >
+            {orderMutation.isPending ? 'Оформляем...' : 'Отправить курьеру'}
+          </button>
+          {orderMutation.isError && (
+            <p className="text-red-500 text-xs text-center mt-2">
+              Ошибка при создании заказа. Попробуйте снова.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
