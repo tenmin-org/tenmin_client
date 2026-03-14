@@ -57,23 +57,21 @@ export function BasketPage() {
   });
 
   const handleUpdate = async (productId: number, quantity: number) => {
-    useCartStore.getState().updateItem(productId, quantity);
+    if (!storeId) return;
+    useCartStore.getState().optimisticSetQty(productId, quantity);
     try {
-      const cart = await updateCartItem(productId, quantity);
+      const cart = await updateCartItem(productId, storeId, quantity);
       useCartStore.getState().setCart(cart);
-    } catch {
-      /* keep optimistic state */
-    }
+    } catch { /* keep optimistic state */ }
   };
 
   const handleRemove = async (productId: number) => {
-    useCartStore.getState().removeItem(productId);
+    if (!storeId) return;
+    useCartStore.getState().optimisticRemove(productId);
     try {
-      const cart = await removeFromCart(productId);
+      const cart = await removeFromCart(productId, storeId);
       useCartStore.getState().setCart(cart);
-    } catch {
-      /* keep optimistic state */
-    }
+    } catch { /* keep optimistic state */ }
   };
 
   if (orderSuccess) {

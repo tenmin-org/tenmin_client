@@ -23,18 +23,24 @@ export async function addToCart(
 
 export async function updateCartItem(
   productId: number,
+  storeId: number,
   quantity: number,
 ): Promise<Cart> {
   const { data } = await apiClient.post<Cart>('/cart/update', {
     product_id: productId,
+    store_id: storeId,
     quantity,
   });
   return data;
 }
 
-export async function removeFromCart(productId: number): Promise<Cart> {
+export async function removeFromCart(
+  productId: number,
+  storeId: number,
+): Promise<Cart> {
   const { data } = await apiClient.post<Cart>('/cart/remove', {
     product_id: productId,
+    store_id: storeId,
   });
   return data;
 }

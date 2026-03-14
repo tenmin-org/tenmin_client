@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Plus, Minus, Package } from 'lucide-react';
 import type { Product } from '@/types';
 import { useCartStore } from '@/store/cartStore';
@@ -15,73 +15,46 @@ export const ProductCard = React.memo(function ProductCard({
 }: ProductCardProps) {
   const items = useCartStore((s) => s.items);
   const storeId = useUserStore((s) => s.storeId);
-  const [loading, setLoading] = useState(false);
+  const busyRef = useRef(false);
 
   const cartItem = items.find((i) => i.product_id === product.id);
   const quantity = cartItem?.quantity ?? 0;
 
-  const handleAdd = async () => {
-    if (!storeId || loading) return;
-    setLoading(true);
-    useCartStore.getState().addItem({
-      id: 0,
-      product_id: product.id,
-      quantity: 1,
-      product,
-    });
-    try {
-      const cart = await addToCart(product.id, storeId);
-      useCartStore.getState().setCart(cart);
-    } catch {
-      useCartStore.getState().removeItem(product.id);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const sync = useCallback(
+    (promise: Promise<unknown>) => {
+      busyRef.current = true;
+      promise
+        .then((cart) => useCartStore.getState().setCart(cart as any))
+        .catch(() => {})
+        .finally(() => { busyRef.current = false; });
+    },
+    [],
+  );
 
-  const handleIncrease = async () => {
-    if (loading) return;
-    setLoading(true);
-    useCartStore.getState().updateItem(product.id, quantity + 1);
-    try {
-      const cart = await updateCartItem(product.id, quantity + 1);
-      useCartStore.getState().setCart(cart);
-    } catch {
-      useCartStore.getState().updateItem(product.id, quantity);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleAdd = useCallback(() => {
+    if (!storeId || busyRef.current) return;
+    useCartStore.getState().optimisticAdd(product);
+    sync(addToCart(product.id, storeId));
+  }, [storeId, product, sync]);
 
-  const handleDecrease = async () => {
-    if (loading) return;
-    setLoading(true);
+  const handleIncrease = useCallback(() => {
+    if (!storeId || busyRef.current) return;
+    const next = quantity + 1;
+    useCartStore.getState().optimisticSetQty(product.id, next);
+    sync(updateCartItem(product.id, storeId, next));
+  }, [storeId, product.id, quantity, sync]);
+
+  const handleDecrease = useCallback(() => {
+    if (!storeId || busyRef.current) return;
     if (quantity <= 1) {
-      useCartStore.getState().removeItem(product.id);
+      useCartStore.getState().optimisticRemove(product.id);
+      sync(removeFromCart(product.id, storeId));
     } else {
-      useCartStore.getState().updateItem(product.id, quantity - 1);
+      const next = quantity - 1;
+      useCartStore.getState().optimisticSetQty(product.id, next);
+      sync(updateCartItem(product.id, storeId, next));
     }
-    try {
-      const cart =
-        quantity <= 1
-          ? await removeFromCart(product.id)
-          : await updateCartItem(product.id, quantity - 1);
-      useCartStore.getState().setCart(cart);
-    } catch {
-      if (quantity <= 1) {
-        useCartStore.getState().addItem({
-          id: cartItem?.id ?? 0,
-          product_id: product.id,
-          quantity,
-          product,
-        });
-      } else {
-        useCartStore.getState().updateItem(product.id, quantity);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [storeId, product.id, quantity, sync]);
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
@@ -122,8 +95,7 @@ export const ProductCard = React.memo(function ProductCard({
             (quantity === 0 ? (
               <button
                 onClick={handleAdd}
-                disabled={loading}
-                className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center active:scale-90 transition-transform disabled:opacity-50"
+                className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center active:scale-90 transition-transform"
               >
                 <Plus size={18} />
               </button>
@@ -131,7 +103,6 @@ export const ProductCard = React.memo(function ProductCard({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleDecrease}
-                  disabled={loading}
                   className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
                 >
                   <Minus size={14} />
@@ -141,7 +112,6 @@ export const ProductCard = React.memo(function ProductCard({
                 </span>
                 <button
                   onClick={handleIncrease}
-                  disabled={loading}
                   className="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center active:scale-90 transition-transform"
                 >
                   <Plus size={14} />
