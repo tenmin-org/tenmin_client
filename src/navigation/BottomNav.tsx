@@ -1,9 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Store, ShoppingCart } from 'lucide-react';
+import { Store, ShoppingCart, Package } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 
 const tabs = [
   { path: '/', icon: Store, label: 'Магазин' },
+  { path: '/orders', icon: Package, label: 'Заказы' },
   { path: '/basket', icon: ShoppingCart, label: 'Корзина' },
 ] as const;
 

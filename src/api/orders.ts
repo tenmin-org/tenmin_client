@@ -24,3 +24,8 @@ export async function fetchOrder(orderId: number): Promise<Order> {
   const { data } = await apiClient.get<Order>(`/orders/${orderId}`);
   return data;
 }
+
+export async function cancelOrder(orderId: number): Promise<Order> {
+  const { data } = await apiClient.post<Order>(`/orders/${orderId}/cancel`);
+  return data;
+}

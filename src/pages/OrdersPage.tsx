@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Package, ChevronRight, Clock } from 'lucide-react';
-import { fetchOrders, fetchOrder } from '@/api/orders';
+import { cancelOrder, fetchOrders, fetchOrder } from '@/api/orders';
 import { Loader } from '@/components/Loader';
 import { EmptyState } from '@/components/EmptyState';
 import { formatPrice } from '@/utils/format';
@@ -36,8 +36,13 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function canCancelOrder(status: string) {
+  return status !== 'delivered' && status !== 'cancelled';
+}
+
 export function OrdersPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const { data: orders, isLoading } = useQuery({
@@ -49,6 +54,16 @@ export function OrdersPage() {
     queryKey: ['order', selectedId],
     queryFn: () => fetchOrder(selectedId!),
     enabled: !!selectedId,
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (orderId: number) => cancelOrder(orderId),
+    onSuccess: async (_, orderId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['orders'] }),
+        queryClient.invalidateQueries({ queryKey: ['order', orderId] }),
+      ]);
+    },
   });
 
   if (selectedId && detailLoading) {
@@ -80,6 +95,16 @@ export function OrdersPage() {
             <StatusBadge status={orderDetail.status} />
             <span className="font-bold">{formatPrice(orderDetail.total_price)}</span>
           </div>
+
+          {canCancelOrder(orderDetail.status) && (
+            <button
+              onClick={() => cancelMutation.mutate(orderDetail.id)}
+              disabled={cancelMutation.isPending}
+              className="w-full rounded-2xl bg-red-50 text-red-600 py-3 text-sm font-semibold active:scale-[0.98] transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {cancelMutation.isPending ? 'Отмена...' : 'Отменить заказ'}
+            </button>
+          )}
 
           {orderDetail.comment && (
             <div className="bg-white rounded-2xl p-4">
@@ -133,12 +158,6 @@ export function OrdersPage() {
     <div className="pb-4">
       <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div className="flex items-center gap-3 px-4 py-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
-          >
-            <ArrowLeft size={18} />
-          </button>
           <h1 className="font-semibold text-base">Мои заказы</h1>
         </div>
       </div>
