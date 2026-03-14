@@ -23,11 +23,17 @@ export const ProductCard = React.memo(function ProductCard({
   const handleAdd = async () => {
     if (!storeId || loading) return;
     setLoading(true);
+    useCartStore.getState().addItem({
+      id: 0,
+      product_id: product.id,
+      quantity: 1,
+      product,
+    });
     try {
       const cart = await addToCart(product.id, storeId);
       useCartStore.getState().setCart(cart);
     } catch {
-      /* network error — keep previous state */
+      useCartStore.getState().removeItem(product.id);
     } finally {
       setLoading(false);
     }
@@ -36,11 +42,12 @@ export const ProductCard = React.memo(function ProductCard({
   const handleIncrease = async () => {
     if (loading) return;
     setLoading(true);
+    useCartStore.getState().updateItem(product.id, quantity + 1);
     try {
       const cart = await updateCartItem(product.id, quantity + 1);
       useCartStore.getState().setCart(cart);
     } catch {
-      /* keep previous state */
+      useCartStore.getState().updateItem(product.id, quantity);
     } finally {
       setLoading(false);
     }
@@ -49,6 +56,11 @@ export const ProductCard = React.memo(function ProductCard({
   const handleDecrease = async () => {
     if (loading) return;
     setLoading(true);
+    if (quantity <= 1) {
+      useCartStore.getState().removeItem(product.id);
+    } else {
+      useCartStore.getState().updateItem(product.id, quantity - 1);
+    }
     try {
       const cart =
         quantity <= 1
@@ -56,7 +68,16 @@ export const ProductCard = React.memo(function ProductCard({
           : await updateCartItem(product.id, quantity - 1);
       useCartStore.getState().setCart(cart);
     } catch {
-      /* keep previous state */
+      if (quantity <= 1) {
+        useCartStore.getState().addItem({
+          id: cartItem?.id ?? 0,
+          product_id: product.id,
+          quantity,
+          product,
+        });
+      } else {
+        useCartStore.getState().updateItem(product.id, quantity);
+      }
     } finally {
       setLoading(false);
     }
