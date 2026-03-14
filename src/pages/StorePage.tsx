@@ -22,7 +22,6 @@ export function StorePage() {
   const [searchParams] = useSearchParams();
   const storeId = useUserStore((s) => s.storeId);
   const setStoreId = useUserStore((s) => s.setStoreId);
-  const setCart = useCartStore((s) => s.setCart);
 
   useEffect(() => {
     const paramId = searchParams.get('store_id');
@@ -43,17 +42,15 @@ export function StorePage() {
     enabled: !!storeId,
   });
 
-  const { data: cart } = useQuery({
+  useQuery({
     queryKey: ['cart', storeId],
-    queryFn: () => fetchCart(storeId!),
+    queryFn: async () => {
+      const cart = await fetchCart(storeId!);
+      useCartStore.getState().setCart(cart);
+      return cart;
+    },
     enabled: !!storeId,
   });
-
-  useEffect(() => {
-    if (cart) {
-      setCart(cart);
-    }
-  }, [cart, setCart]);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [hasMore, setHasMore] = useState(true);
