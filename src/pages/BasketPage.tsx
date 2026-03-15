@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { ShoppingBag, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, ArrowLeft, Wallet } from 'lucide-react';
 import { createOrder } from '@/api/orders';
 import { updateCartItem, removeFromCart, clearCart as clearCartApi } from '@/api/cart';
 import { useCartStore } from '@/store/cartStore';
@@ -153,6 +153,12 @@ export function BasketPage() {
 
       <div className="fixed bottom-20 left-0 right-0 z-30 px-4 pb-4 pt-2 bg-gradient-to-t from-gray-50 via-gray-50">
         <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+          <div className="mb-3 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
+            <Wallet size={16} className="mt-0.5 flex-shrink-0" />
+            <p className="text-xs font-medium">
+              Оплата производится при получении заказа
+            </p>
+          </div>
           <div className="flex justify-between items-center mb-3">
             <span className="text-sm text-gray-500">
               {totalItems} {pluralize(totalItems)}
