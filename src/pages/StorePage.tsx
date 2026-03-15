@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, Store as StoreIcon } from 'lucide-react';
@@ -52,29 +52,36 @@ export function StorePage() {
     enabled: !!storeId,
   });
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { data: firstPage, isLoading: categoriesLoading } = useQuery({
+    queryKey: ['categories', storeId],
+    queryFn: () => fetchCategories(storeId!, CATEGORIES_LIMIT, 0),
+    enabled: !!storeId,
+  });
+
+  const [extraPages, setExtraPages] = useState<Category[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const offsetRef = useRef(0);
 
-  const { isLoading: categoriesLoading } = useQuery({
-    queryKey: ['categories', storeId],
-    queryFn: async () => {
-      const data = await fetchCategories(storeId!, CATEGORIES_LIMIT, 0);
-      setCategories(data);
-      offsetRef.current = data.length;
-      setHasMore(data.length === CATEGORIES_LIMIT);
-      return data;
-    },
-    enabled: !!storeId,
-  });
+  useEffect(() => {
+    if (firstPage) {
+      setExtraPages([]);
+      offsetRef.current = firstPage.length;
+      setHasMore(firstPage.length === CATEGORIES_LIMIT);
+    }
+  }, [firstPage]);
+
+  const categories = useMemo(
+    () => [...(firstPage ?? []), ...extraPages],
+    [firstPage, extraPages],
+  );
 
   const loadMoreCategories = useCallback(async () => {
     if (!storeId || loadingMore) return;
     setLoadingMore(true);
     try {
       const data = await fetchCategories(storeId, CATEGORIES_LIMIT, offsetRef.current);
-      setCategories((prev) => [...prev, ...data]);
+      setExtraPages((prev) => [...prev, ...data]);
       offsetRef.current += data.length;
       setHasMore(data.length === CATEGORIES_LIMIT);
     } catch {
