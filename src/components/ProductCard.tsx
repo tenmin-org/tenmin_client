@@ -20,41 +20,53 @@ export const ProductCard = React.memo(function ProductCard({
   const cartItem = items.find((i) => i.product_id === product.id);
   const quantity = cartItem?.quantity ?? 0;
 
-  const sync = useCallback(
-    (promise: Promise<unknown>) => {
-      busyRef.current = true;
-      promise
-        .then((cart) => useCartStore.getState().setCart(cart as any))
-        .catch(() => {})
-        .finally(() => { busyRef.current = false; });
-    },
-    [],
-  );
-
   const handleAdd = useCallback(() => {
     if (!storeId || busyRef.current) return;
+    busyRef.current = true;
+
     useCartStore.getState().optimisticAdd(product);
-    sync(addToCart(product.id, storeId));
-  }, [storeId, product, sync]);
+
+    addToCart(product.id, storeId)
+      .catch(() => {
+        useCartStore.getState().optimisticRemove(product.id);
+      })
+      .finally(() => { busyRef.current = false; });
+  }, [storeId, product]);
 
   const handleIncrease = useCallback(() => {
     if (!storeId || busyRef.current) return;
+    busyRef.current = true;
     const next = quantity + 1;
+
     useCartStore.getState().optimisticSetQty(product.id, next);
-    sync(updateCartItem(product.id, storeId, next));
-  }, [storeId, product.id, quantity, sync]);
+
+    updateCartItem(product.id, storeId, next)
+      .then((cart) => useCartStore.getState().setCart(cart))
+      .catch(() => useCartStore.getState().optimisticSetQty(product.id, quantity))
+      .finally(() => { busyRef.current = false; });
+  }, [storeId, product.id, quantity]);
 
   const handleDecrease = useCallback(() => {
     if (!storeId || busyRef.current) return;
+    busyRef.current = true;
+
     if (quantity <= 1) {
       useCartStore.getState().optimisticRemove(product.id);
-      sync(removeFromCart(product.id, storeId));
+
+      removeFromCart(product.id, storeId)
+        .then((cart) => useCartStore.getState().setCart(cart))
+        .catch(() => useCartStore.getState().optimisticAdd(product))
+        .finally(() => { busyRef.current = false; });
     } else {
       const next = quantity - 1;
       useCartStore.getState().optimisticSetQty(product.id, next);
-      sync(updateCartItem(product.id, storeId, next));
+
+      updateCartItem(product.id, storeId, next)
+        .then((cart) => useCartStore.getState().setCart(cart))
+        .catch(() => useCartStore.getState().optimisticSetQty(product.id, quantity))
+        .finally(() => { busyRef.current = false; });
     }
-  }, [storeId, product.id, quantity, sync]);
+  }, [storeId, product, quantity]);
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
