@@ -54,7 +54,8 @@ export function StorePage() {
 
   const { data: firstPage, isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories', storeId],
-    queryFn: () => fetchCategories(storeId!, CATEGORIES_LIMIT, 0),
+    queryFn: () =>
+      fetchCategories(storeId!, { limit: CATEGORIES_LIMIT, offset: 0 }),
     enabled: !!storeId,
   });
 
@@ -80,7 +81,10 @@ export function StorePage() {
     if (!storeId || loadingMore) return;
     setLoadingMore(true);
     try {
-      const data = await fetchCategories(storeId, CATEGORIES_LIMIT, offsetRef.current);
+      const data = await fetchCategories(storeId, {
+        limit: CATEGORIES_LIMIT,
+        offset: offsetRef.current,
+      });
       setExtraPages((prev) => [...prev, ...data]);
       offsetRef.current += data.length;
       setHasMore(data.length === CATEGORIES_LIMIT);

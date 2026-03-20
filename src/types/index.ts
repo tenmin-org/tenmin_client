@@ -14,6 +14,8 @@ export interface Category {
   name: string;
   image_url: string | null;
   position: number;
+  parent_id: number | null;
+  has_children: boolean;
 }
 
 export interface Product {
@@ -25,6 +27,13 @@ export interface Product {
   price: number;
   image_url: string | null;
   is_available: boolean;
+}
+
+export interface ProductBrief {
+  id: number;
+  name: string;
+  description: string | null;
+  image_url: string | null;
 }
 
 export interface PaginatedProducts {
@@ -52,7 +61,7 @@ export interface OrderItem {
   product_id: number;
   quantity: number;
   price: number;
-  product: Product;
+  product: ProductBrief;
 }
 
 export interface Order {
