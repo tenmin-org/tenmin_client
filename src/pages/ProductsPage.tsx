@@ -141,6 +141,7 @@ export function ProductsPage() {
               <CategoryCard
                 key={cat.id}
                 category={cat}
+                parentStorePosition={categoryMeta?.position}
                 onClick={() => navigate(`/products/${cat.id}`)}
               />
             ))}

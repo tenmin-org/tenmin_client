@@ -1,24 +1,35 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
 import type { Category } from '@/types';
+import { getLocalCategoryImageSrc } from '@/utils/categoryLocalImage';
 
 interface CategoryCardProps {
   category: Category;
+  /** StoreCategory.position родителя — для файлов вида `1_2.png` у подкатегорий */
+  parentStorePosition?: number;
   onClick: () => void;
 }
 
 export const CategoryCard = React.memo(function CategoryCard({
   category,
+  parentStorePosition,
   onClick,
 }: CategoryCardProps) {
+  const imageSrc = getLocalCategoryImageSrc(
+    category.position,
+    category.parent_id != null
+      ? (parentStorePosition ?? null)
+      : undefined,
+  );
+
   return (
     <div
       onClick={onClick}
       className="relative overflow-hidden rounded-2xl aspect-square cursor-pointer active:scale-[0.97] transition-transform shadow-sm"
     >
-      {category.image_url ? (
+      {imageSrc ? (
         <img
-          src={category.image_url}
+          src={imageSrc}
           alt={category.name}
           className="w-full h-full object-cover"
           loading="lazy"
