@@ -26,6 +26,7 @@ export interface Product {
   description: string | null;
   price: number;
   image_url: string | null;
+  measure: string | null;
   is_available: boolean;
 }
 
@@ -34,6 +35,7 @@ export interface ProductBrief {
   name: string;
   description: string | null;
   image_url: string | null;
+  measure: string | null;
 }
 
 export interface PaginatedProducts {
