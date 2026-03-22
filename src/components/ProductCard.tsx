@@ -82,11 +82,11 @@ export const ProductCard = React.memo(function ProductCard({
         <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-1">
           {product.name}
         </h3>
-        {product.description && (
+        {/* {product.description && (
           <p className="text-xs text-gray-500 line-clamp-1 mb-2">
             {product.description}
           </p>
-        )}
+        )} */}
 
         <div className="flex items-center justify-between mt-auto">
           <span className="font-bold text-sm">
