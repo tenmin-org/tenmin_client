@@ -4,7 +4,7 @@ import type { Product } from '@/types';
 import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { addToCart, updateCartItem, removeFromCart } from '@/api/cart';
-import { formatPrice } from '@/utils/format';
+import { formatPriceAmount } from '@/utils/format';
 
 interface ProductCardProps {
   product: Product;
@@ -89,7 +89,11 @@ export const ProductCard = React.memo(function ProductCard({
         )}
 
         <div className="flex items-center justify-between mt-auto">
-          <span className="font-bold text-sm">{formatPrice(product.price)}</span>
+          <span className="font-bold text-sm">
+            {product.measure
+              ? `${formatPriceAmount(product.price)} ₸/${product.measure}`
+              : `${formatPriceAmount(product.price)} ₸`}
+          </span>
 
           {product.is_available &&
             (quantity === 0 ? (
