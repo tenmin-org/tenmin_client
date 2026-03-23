@@ -24,8 +24,6 @@ function AppInit() {
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
-    tg?.ready();
-    tg?.expand();
 
     const startParam = tg?.initDataUnsafe?.start_param;
     if (startParam) {

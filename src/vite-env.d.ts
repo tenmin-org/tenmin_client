@@ -15,6 +15,11 @@ interface TelegramWebApp {
   ready: () => void;
   close: () => void;
   expand: () => void;
+  /** Bot API 8.0+ — полноэкранный режим (не путать с expand). */
+  requestFullscreen?: () => void;
+  exitFullscreen?: () => void;
+  isFullscreen?: boolean;
+  isExpanded?: boolean;
   MainButton: {
     text: string;
     color: string;
