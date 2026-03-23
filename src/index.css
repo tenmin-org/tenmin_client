@@ -53,7 +53,7 @@ body {
   /* Hero / BotFather-style: safe area + запас под кнопку Close и статус-бар */
   .pt-hero-safe {
     padding-top: calc(
-      max(env(safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)) + 1.25rem
+      max(env(safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)) + 1.875rem
     );
   }
   .pb-content-safe {
