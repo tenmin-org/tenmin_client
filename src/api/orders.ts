@@ -6,7 +6,7 @@ export async function createOrder(data: {
   items: { product_id: number; quantity: number }[];
   comment?: string;
 }): Promise<Order> {
-  const { data: order } = await apiClient.post<Order>('/orders', data);
+  const { data: order } = await apiClient.post<Order>('/orders/', data);
   return order;
 }
 
@@ -14,7 +14,7 @@ export async function fetchOrders(
   limit?: number,
   offset?: number,
 ): Promise<OrderSummary[]> {
-  const { data } = await apiClient.get<OrderSummary[]>('/orders', {
+  const { data } = await apiClient.get<OrderSummary[]>('/orders/', {
     params: { limit, offset },
   });
   return data;
