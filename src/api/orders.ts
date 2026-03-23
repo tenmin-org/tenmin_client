@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { Order } from '../types';
+import type { Order, OrderSummary } from '../types';
 
 export async function createOrder(data: {
   store_id: number;
@@ -13,8 +13,8 @@ export async function createOrder(data: {
 export async function fetchOrders(
   limit?: number,
   offset?: number,
-): Promise<Order[]> {
-  const { data } = await apiClient.get<Order[]>('/orders', {
+): Promise<OrderSummary[]> {
+  const { data } = await apiClient.get<OrderSummary[]>('/orders', {
     params: { limit, offset },
   });
   return data;

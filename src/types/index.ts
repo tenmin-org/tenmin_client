@@ -66,6 +66,16 @@ export interface OrderItem {
   product: ProductBrief;
 }
 
+/** GET /orders — без позиций, для быстрого списка */
+export interface OrderSummary {
+  id: number;
+  store_id: number;
+  status: string;
+  comment: string | null;
+  total_price: number;
+  created_at: string;
+}
+
 export interface Order {
   id: number;
   store_id: number;
