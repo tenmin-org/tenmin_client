@@ -23,7 +23,7 @@ export function CartSummary() {
   if (items.length === 0) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-30">
+    <div className="fixed left-0 right-0 z-30 px-page bottom-above-tab-bar">
       <button
         onClick={() => navigate('/basket')}
         className="w-full flex items-center justify-between px-5 py-3.5 bg-green-500 text-white rounded-2xl shadow-lg active:scale-[0.98] transition-transform"

@@ -103,8 +103,8 @@ export function StorePage() {
 
   if (!storeId) {
     return (
-      <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold mb-1">Магазины</h1>
+      <div className="px-page pb-4 pt-content-safe">
+        <h1 className="text-2xl font-bold mb-1 tracking-tight">Магазины</h1>
         <p className="text-sm text-gray-500 mb-5">Выберите магазин для заказа</p>
 
         {storesLoading && <Loader />}
@@ -129,8 +129,8 @@ export function StorePage() {
   return (
     <div className="pb-4">
       {store && (
-        <div className="px-4 pt-6 pb-4">
-          <h1 className="text-2xl font-bold">{store.name}</h1>
+        <div className="px-page pt-content-safe pb-4">
+          <h1 className="text-2xl font-bold tracking-tight">{store.name}</h1>
           {store.address && (
             <div className="flex items-center gap-1.5 mt-1 text-gray-500">
               <MapPin size={14} />
@@ -140,7 +140,7 @@ export function StorePage() {
         </div>
       )}
 
-      <div className="px-4">
+      <div className="px-page">
         <h2 className="text-lg font-semibold mb-3">Категории</h2>
 
         {categoriesLoading && categories.length === 0 && <Loader />}

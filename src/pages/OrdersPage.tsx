@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Package, ChevronRight, Clock } from 'lucide-react';
+import { Package, ChevronRight, Clock } from 'lucide-react';
 import { cancelOrder, fetchOrders, fetchOrder } from '@/api/orders';
 import { Loader } from '@/components/Loader';
+import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { formatPrice } from '@/utils/format';
 
@@ -73,27 +74,18 @@ export function OrdersPage() {
   if (selectedId && orderDetail) {
     return (
       <div className="pb-4">
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <button
-              onClick={() => setSelectedId(null)}
-              className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div>
-              <h1 className="font-semibold text-base">Заказ #{orderDetail.id}</h1>
-              <p className="text-xs text-gray-500">
-                {formatDate(orderDetail.created_at)}
-              </p>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title={`Заказ #${orderDetail.id}`}
+          subtitle={formatDate(orderDetail.created_at)}
+          onBack={() => setSelectedId(null)}
+        />
 
-        <div className="px-4 pt-4 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="px-page pt-4 space-y-4">
+          <div className="flex items-start justify-between gap-3">
             <StatusBadge status={orderDetail.status} />
-            <span className="font-bold">{formatPrice(orderDetail.total_price)}</span>
+            <span className="font-bold text-right tabular-nums flex-shrink-0">
+              {formatPrice(orderDetail.total_price)}
+            </span>
           </div>
 
           {canCancelOrder(orderDetail.status) && (
@@ -156,13 +148,9 @@ export function OrdersPage() {
 
   return (
     <div className="pb-4">
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <h1 className="font-semibold text-base">Мои заказы</h1>
-        </div>
-      </div>
+      <PageHeader title="Мои заказы" />
 
-      <div className="px-4 pt-4">
+      <div className="px-page pt-4">
         {isLoading && <Loader />}
 
         {!isLoading && (!orders || orders.length === 0) && (

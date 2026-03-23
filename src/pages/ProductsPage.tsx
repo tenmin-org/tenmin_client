@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
 import { fetchCategories, fetchCategory } from '@/api/categories';
 import { fetchProducts } from '@/api/products';
-import { useTelegram } from '@/hooks/useTelegram';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useUserStore } from '@/store/userStore';
 import { ProductCard } from '@/components/ProductCard';
 import { CategoryCard } from '@/components/CategoryCard';
 import { CartSummary } from '@/components/CartSummary';
+import { PageHeader } from '@/components/PageHeader';
 import { Loader } from '@/components/Loader';
 import { EmptyState } from '@/components/EmptyState';
 import type { Category, Product } from '@/types';
@@ -19,19 +18,8 @@ const PRODUCTS_LIMIT = 20;
 export function ProductsPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
-  const { tg } = useTelegram();
   const storeId = useUserStore((s) => s.storeId);
   const catId = Number(categoryId);
-
-  useEffect(() => {
-    tg?.BackButton?.show();
-    const handler = () => navigate(-1);
-    tg?.BackButton?.onClick(handler);
-    return () => {
-      tg?.BackButton?.offClick(handler);
-      tg?.BackButton?.hide();
-    };
-  }, [tg, navigate]);
 
   const { data: categoryMeta } = useQuery({
     queryKey: ['category', storeId, catId],
@@ -108,31 +96,17 @@ export function ProductsPage() {
   );
 
   const title = categoryMeta?.name ?? 'Каталог';
+  const subtitle = showSubcategories
+    ? 'Выберите подкатегорию'
+    : total > 0
+      ? `${total} товаров`
+      : undefined;
 
   return (
     <div className="pb-4">
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <div>
-            <h1 className="font-semibold text-base">{title}</h1>
-            {!showSubcategories && total > 0 && (
-              <p className="text-xs text-gray-500">{total} товаров</p>
-            )}
-            {showSubcategories && (
-              <p className="text-xs text-gray-500">Выберите подкатегорию</p>
-            )}
-          </div>
-        </div>
-      </div>
+      <PageHeader title={title} subtitle={subtitle} onBack={() => navigate(-1)} />
 
-      <div className="px-4 pt-4">
+      <div className="px-page pt-4">
         {subcatsLoading && <Loader />}
 
         {!subcatsLoading && showSubcategories && (

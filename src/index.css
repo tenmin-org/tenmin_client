@@ -10,6 +10,10 @@
   --tg-theme-button-color: #22c55e;
   --tg-theme-button-text-color: #ffffff;
   --tg-theme-secondary-bg-color: #f5f5f5;
+  /* плавающие блоки над нижней навигацией */
+  --app-bottom-nav-offset: calc(
+    4rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)) + 0.75rem
+  );
 }
 
 * {
@@ -36,6 +40,61 @@ body {
 ::-webkit-scrollbar {
   width: 0;
   background: transparent;
+}
+
+/* Telegram Mini App fullscreen: device notch + client UI (close / menu) */
+@layer utilities {
+  .pt-content-safe {
+    padding-top: max(
+      env(safe-area-inset-top, 0px),
+      var(--tg-content-safe-area-inset-top, 0px)
+    );
+  }
+  .pb-content-safe {
+    padding-bottom: max(
+      env(safe-area-inset-bottom, 0px),
+      var(--tg-content-safe-area-inset-bottom, 0px)
+    );
+  }
+  .pl-content-safe {
+    padding-left: max(
+      env(safe-area-inset-left, 0px),
+      var(--tg-content-safe-area-inset-left, 0px)
+    );
+  }
+  .pr-content-safe {
+    padding-right: max(
+      env(safe-area-inset-right, 0px),
+      var(--tg-content-safe-area-inset-right, 0px)
+    );
+  }
+  .px-page {
+    padding-left: max(
+      1rem,
+      env(safe-area-inset-left, 0px),
+      var(--tg-content-safe-area-inset-left, 0px)
+    );
+    padding-right: max(
+      1rem,
+      env(safe-area-inset-right, 0px),
+      var(--tg-content-safe-area-inset-right, 0px)
+    );
+  }
+  .pb-tab-bar {
+    padding-bottom: max(
+      env(safe-area-inset-bottom, 0px),
+      var(--tg-content-safe-area-inset-bottom, 0px)
+    );
+  }
+  /* 4rem tab row + home indicator + небольшой зазор под контент */
+  .pb-with-bottom-nav {
+    padding-bottom: calc(
+      5rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))
+    );
+  }
+  .bottom-above-tab-bar {
+    bottom: var(--app-bottom-nav-offset);
+  }
 }
 
 @keyframes slide-up {

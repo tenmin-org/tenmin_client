@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { ShoppingBag, CheckCircle2, ArrowLeft, Wallet } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, Wallet } from 'lucide-react';
 import { createOrder } from '@/api/orders';
 import { updateCartItem, removeFromCart, clearCart as clearCartApi } from '@/api/cart';
 import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { useTelegram } from '@/hooks/useTelegram';
 import { CartItemCard } from '@/components/CartItemCard';
+import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { formatPrice } from '@/utils/format';
 
@@ -76,7 +77,7 @@ export function BasketPage() {
 
   if (orderSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 text-center">
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-page pt-content-safe text-center">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-[scale-in_0.3s_ease-out]">
           <CheckCircle2 className="text-green-500" size={40} />
         </div>
@@ -104,7 +105,7 @@ export function BasketPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center">
+      <div className="min-h-[80vh] flex items-center justify-center px-page pt-content-safe">
         <EmptyState
           icon={<ShoppingBag size={48} />}
           title="Корзина пуста"
@@ -117,19 +118,9 @@ export function BasketPage() {
 
   return (
     <div className="pb-44">
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <h1 className="font-semibold text-base">Корзина</h1>
-        </div>
-      </div>
+      <PageHeader title="Корзина" onBack={() => navigate(-1)} />
 
-      <div className="px-4 pt-4 space-y-3">
+      <div className="px-page pt-4 space-y-3">
         {items.map((item) => (
           <CartItemCard
             key={item.product_id}
@@ -141,7 +132,7 @@ export function BasketPage() {
         ))}
       </div>
 
-      <div className="px-4 mt-4">
+      <div className="px-page mt-4">
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -151,7 +142,7 @@ export function BasketPage() {
         />
       </div>
 
-      <div className="fixed bottom-20 left-0 right-0 z-30 px-4 pb-4 pt-2 bg-gradient-to-t from-gray-50 via-gray-50">
+      <div className="fixed left-0 right-0 z-30 px-page pt-2 pb-4 bg-gradient-to-t from-gray-50 via-gray-50 bottom-above-tab-bar">
         <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
           <div className="mb-3 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
             <Wallet size={16} className="mt-0.5 flex-shrink-0" />
