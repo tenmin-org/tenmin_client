@@ -8,29 +8,38 @@ type PageHeaderProps = {
   right?: ReactNode;
 };
 
+const sideSlotClass = 'flex w-11 flex-shrink-0 items-center justify-center';
+
+/** Шапка второго уровня: заголовок по центру, «Назад» не перекрывает текст (как в нативных мини-приложениях). */
 export function PageHeader({ title, subtitle, onBack, right }: PageHeaderProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-gray-100 bg-white/95 backdrop-blur-md">
-      <div className="pt-content-safe">
-        <div className="flex items-center gap-2 px-page pb-3 pt-1 min-h-[52px]">
+    <header className="sticky top-0 z-20 border-b border-gray-200/80 bg-white/90 backdrop-blur-xl">
+      <div className="flex min-h-[52px] items-center gap-1 px-page pb-3 pt-hero-safe">
+        <div className={`${sideSlotClass} justify-start`}>
           {onBack ? (
             <button
               type="button"
               onClick={onBack}
-              className="w-10 h-10 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100/90 active:scale-90 transition-transform"
               aria-label="Назад"
             >
-              <ArrowLeft size={20} strokeWidth={2} />
+              <ArrowLeft size={20} strokeWidth={2} className="text-gray-800" />
             </button>
-          ) : null}
-          <div className="min-w-0 flex-1">
-            <h1 className="font-semibold text-[17px] leading-snug tracking-tight">{title}</h1>
-            {subtitle ? (
-              <p className="text-xs text-gray-500 mt-0.5 leading-snug">{subtitle}</p>
-            ) : null}
-          </div>
-          {right ? <div className="flex-shrink-0 flex items-center">{right}</div> : null}
+          ) : (
+            <span className="h-10 w-10" aria-hidden />
+          )}
         </div>
+
+        <div className="min-w-0 flex-1 px-1 text-center">
+          <h1 className="truncate text-[17px] font-semibold leading-snug tracking-tight text-gray-900">
+            {title}
+          </h1>
+          {subtitle ? (
+            <p className="mt-0.5 truncate text-xs leading-snug text-gray-500">{subtitle}</p>
+          ) : null}
+        </div>
+
+        <div className={`${sideSlotClass} justify-end`}>{right ?? <span className="h-10 w-10" aria-hidden />}</div>
       </div>
     </header>
   );

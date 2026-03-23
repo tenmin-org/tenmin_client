@@ -50,6 +50,12 @@ body {
       var(--tg-content-safe-area-inset-top, 0px)
     );
   }
+  /* Hero / BotFather-style: safe area + запас под кнопку Close и статус-бар */
+  .pt-hero-safe {
+    padding-top: calc(
+      max(env(safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)) + 1.25rem
+    );
+  }
   .pb-content-safe {
     padding-bottom: max(
       env(safe-area-inset-bottom, 0px),

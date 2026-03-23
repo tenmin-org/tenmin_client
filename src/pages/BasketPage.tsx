@@ -8,6 +8,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { useTelegram } from '@/hooks/useTelegram';
 import { CartItemCard } from '@/components/CartItemCard';
+import { HeroHeader } from '@/components/HeroHeader';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { formatPrice } from '@/utils/format';
@@ -77,7 +78,7 @@ export function BasketPage() {
 
   if (orderSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[80vh] px-page pt-content-safe text-center">
+      <div className="flex min-h-[80vh] flex-col items-center justify-center px-page pt-hero-safe text-center">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-[scale-in_0.3s_ease-out]">
           <CheckCircle2 className="text-green-500" size={40} />
         </div>
@@ -105,13 +106,19 @@ export function BasketPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-page pt-content-safe">
-        <EmptyState
-          icon={<ShoppingBag size={48} />}
-          title="Корзина пуста"
-          description="Добавьте товары из каталога"
-          action={{ label: 'Перейти в каталог', onClick: () => navigate('/') }}
+      <div className="min-h-[80vh]">
+        <HeroHeader
+          icon={<ShoppingBag strokeWidth={1.75} />}
+          title="Корзина"
+          description="Добавьте товары из каталога — оформим доставку за пару шагов"
         />
+        <div className="px-page">
+          <EmptyState
+            title="Пока пусто"
+            description="Загляните в магазин и добавьте товары"
+            action={{ label: 'В каталог', onClick: () => navigate('/') }}
+          />
+        </div>
       </div>
     );
   }

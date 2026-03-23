@@ -3,7 +3,7 @@ import { BottomNav } from '@/navigation/BottomNav';
 
 export function MainLayout() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-[#F2F2F7]">
       <main className="flex-1 pb-with-bottom-nav">
         <Outlet />
       </main>

@@ -4,7 +4,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Package, ChevronRight, Clock } from 'lucide-react';
 import { cancelOrder, fetchOrders, fetchOrder } from '@/api/orders';
 import { Loader } from '@/components/Loader';
+import { HeroHeader } from '@/components/HeroHeader';
 import { PageHeader } from '@/components/PageHeader';
+import { SectionHeading } from '@/components/SectionHeading';
 import { EmptyState } from '@/components/EmptyState';
 import { formatPrice } from '@/utils/format';
 
@@ -148,9 +150,13 @@ export function OrdersPage() {
 
   return (
     <div className="pb-4">
-      <PageHeader title="Мои заказы" />
+      <HeroHeader
+        icon={<Package strokeWidth={1.75} />}
+        title="Мои заказы"
+        description="История заказов и статусы доставки"
+      />
 
-      <div className="px-page pt-4">
+      <div className="px-page pt-1">
         {isLoading && <Loader />}
 
         {!isLoading && (!orders || orders.length === 0) && (
@@ -162,31 +168,38 @@ export function OrdersPage() {
           />
         )}
 
-        <div className="space-y-3">
-          {orders?.map((order) => (
-            <div
-              key={order.id}
-              onClick={() => setSelectedId(order.id)}
-              className="bg-white rounded-2xl p-4 shadow-sm active:scale-[0.98] transition-transform cursor-pointer"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm">Заказ #{order.id}</span>
-                <StatusBadge status={order.status} />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">
-                  {formatDate(order.created_at)}
-                </span>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold">
-                    {formatPrice(order.total_price)}
-                  </span>
-                  <ChevronRight className="text-gray-400" size={16} />
-                </div>
+        {!isLoading && orders && orders.length > 0 && (
+          <div className="px-page">
+            <SectionHeading>Ваши заказы</SectionHeading>
+            <div className="rounded-[14px] bg-gray-100/90 p-2 shadow-inner shadow-gray-200/40">
+              <div className="space-y-2">
+                {orders.map((order) => (
+                  <div
+                    key={order.id}
+                    onClick={() => setSelectedId(order.id)}
+                    className="cursor-pointer rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04] active:scale-[0.99] transition-transform"
+                  >
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold">Заказ #{order.id}</span>
+                      <StatusBadge status={order.status} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">
+                        {formatDate(order.created_at)}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-bold tabular-nums">
+                          {formatPrice(order.total_price)}
+                        </span>
+                        <ChevronRight className="text-gray-400" size={16} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
