@@ -12,6 +12,8 @@ export interface Category {
   id: number;
   store_id: number;
   name: string;
+  /** Латинский slug для локального файла `src/assets/categories/{code}.webp` */
+  code: string | null;
   image_url: string | null;
   position: number;
   parent_id: number | null;
