@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Package, ChevronRight, Clock } from 'lucide-react';
 import { cancelOrder, fetchOrders, fetchOrder } from '@/api/orders';
@@ -45,15 +44,24 @@ function canCancelOrder(status: string) {
 
 export function OrdersPage() {
   const navigate = useNavigate();
+  const { orderId: orderIdParam } = useParams<{ orderId?: string }>();
   const queryClient = useQueryClient();
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const selectedId =
+    orderIdParam && !Number.isNaN(Number(orderIdParam)) && Number(orderIdParam) > 0
+      ? Number(orderIdParam)
+      : null;
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: () => fetchOrders(),
   });
 
-  const { data: orderDetail, isLoading: detailLoading } = useQuery({
+  const {
+    data: orderDetail,
+    isLoading: detailLoading,
+    isError: detailError,
+  } = useQuery({
     queryKey: ['order', selectedId],
     queryFn: () => fetchOrder(selectedId!),
     enabled: !!selectedId,
@@ -73,13 +81,24 @@ export function OrdersPage() {
     return <Loader />;
   }
 
+  if (selectedId && detailError) {
+    return (
+      <div className="pb-4">
+        <PageHeader title="Заказ" onBack={() => navigate('/orders')} />
+        <p className="px-page pt-4 text-sm text-gray-600">
+          Не удалось загрузить заказ. Возможно, ссылка устарела.
+        </p>
+      </div>
+    );
+  }
+
   if (selectedId && orderDetail) {
     return (
       <div className="pb-4">
         <PageHeader
           title={`Заказ #${orderDetail.id}`}
           subtitle={formatDate(orderDetail.created_at)}
-          onBack={() => setSelectedId(null)}
+          onBack={() => navigate('/orders')}
         />
 
         <div className="px-page pt-4 space-y-4">
@@ -176,7 +195,7 @@ export function OrdersPage() {
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    onClick={() => setSelectedId(order.id)}
+                    onClick={() => navigate(`/orders/${order.id}`)}
                     className="cursor-pointer rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04] active:scale-[0.99] transition-transform"
                   >
                     <div className="mb-2 flex items-center justify-between gap-2">

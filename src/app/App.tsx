@@ -49,6 +49,7 @@ export function App() {
             <Route path="/products/:categoryId" element={<ProductsPage />} />
             <Route path="/basket" element={<BasketPage />} />
             <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders/:orderId" element={<OrdersPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
