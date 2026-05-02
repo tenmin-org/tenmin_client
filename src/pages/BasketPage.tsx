@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ShoppingBag, Wallet } from 'lucide-react';
+import { ChevronRight, CreditCard, Info, Landmark, ShoppingBag } from 'lucide-react';
 import { createOrder } from '@/api/orders';
 import { updateCartItem, removeFromCart, clearCart as clearCartApi, fetchCart } from '@/api/cart';
 import { useCartStore } from '@/store/cartStore';
@@ -13,6 +13,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { formatPrice } from '@/utils/format';
 import { weightGramsForOrderPayload } from '@/utils/cartPricing';
+import type { PaymentMethod } from '@/types';
 
 function pluralize(n: number): string {
   const mod10 = n % 10;
@@ -33,10 +34,38 @@ export function BasketPage() {
   const deliveryPrice = useCartStore((s) => s.deliveryPrice);
 
   const [comment, setComment] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('transfer');
   /** Нижняя панель с итогом перекрывает поле при открытой клавиатуре — прячем, пока в фокусе поле в корзине. */
   const [checkoutBarHidden, setCheckoutBarHidden] = useState(false);
   const cartFieldsRef = useRef<HTMLDivElement>(null);
+  const paymentSectionRef = useRef<HTMLDivElement>(null);
+  const checkoutDockRef = useRef<HTMLDivElement>(null);
   const revealBarTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scrollToPaymentSection = useCallback(() => {
+    haptic?.impactOccurred('light');
+    const el = paymentSectionRef.current;
+    if (!el) return;
+
+    const measureAndScroll = () => {
+      const dock = checkoutDockRef.current;
+      const viewportH = window.visualViewport?.height ?? window.innerHeight;
+      const dockTop = dock?.getBoundingClientRect().top ?? viewportH;
+      const gap = 20;
+      const safeBottom = dockTop - gap;
+      const r = el.getBoundingClientRect();
+      const overflow = r.bottom - safeBottom;
+      const scrollDelta = Math.max(0, overflow);
+      window.scrollTo({
+        top: window.scrollY + scrollDelta,
+        behavior: 'smooth',
+      });
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(measureAndScroll);
+    });
+  }, [haptic]);
 
   const hideCheckoutBar = useCallback(() => {
     if (revealBarTimerRef.current) {
@@ -102,6 +131,7 @@ export function BasketPage() {
           };
         }),
         comment: comment.trim() || undefined,
+        payment_method: paymentMethod,
       });
     },
     onSuccess: () => {
@@ -197,20 +227,83 @@ export function BasketPage() {
             rows={4}
           />
         </div>
+
+        <div
+          ref={paymentSectionRef}
+          id="basket-payment-method"
+          className="px-page mt-6 pb-10 scroll-mt-36"
+        >
+          <h2 className="text-sm font-semibold text-gray-900 mb-1">Способ оплаты</h2>
+          <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+            Оплата при получении — укажите, как удобнее рассчитаться с курьером.
+          </p>
+          <div
+            className="flex rounded-2xl border border-gray-200 bg-gray-50/80 p-1 gap-1"
+            role="group"
+            aria-label="Способ оплаты при получении"
+          >
+            <button
+              type="button"
+              disabled={orderMutation.isPending}
+              onClick={() => setPaymentMethod('transfer')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
+                paymentMethod === 'transfer'
+                  ? 'bg-green-500 text-white shadow-sm'
+                  : 'text-gray-600 active:bg-gray-100/90'
+              }`}
+            >
+              <Landmark size={18} strokeWidth={1.75} className="opacity-90" />
+              Перевод
+            </button>
+            <button
+              type="button"
+              disabled={orderMutation.isPending}
+              onClick={() => setPaymentMethod('card')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
+                paymentMethod === 'card'
+                  ? 'bg-green-500 text-white shadow-sm'
+                  : 'text-gray-600 active:bg-gray-100/90'
+              }`}
+            >
+              <CreditCard size={18} strokeWidth={1.75} className="opacity-90" />
+              Карта
+            </button>
+          </div>
+        </div>
       </div>
 
       {!checkoutBarHidden && (
-        <div className="fixed left-0 right-0 z-30 px-page pt-2 pb-4 bg-gradient-to-t from-gray-50 via-gray-50 bottom-above-tab-bar">
+        <div
+          ref={checkoutDockRef}
+          className="fixed left-0 right-0 z-30 px-page pt-2 pb-4 bg-gradient-to-t from-gray-50 via-gray-50 bottom-above-tab-bar"
+        >
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
-            <div className="mb-3 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
-              <Wallet size={16} className="mt-0.5 flex-shrink-0" />
-              <p className="text-xs font-medium">
-                Оплата производится при получении заказа
-              </p>
-            </div>
-            <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-2.5 py-2 text-[11px] font-medium leading-snug text-red-700">
-              Сумма ориентировочная: по весу точный итог сообщит курьер при доставке.
-            </p>
+            <button
+              type="button"
+              onClick={scrollToPaymentSection}
+              disabled={orderMutation.isPending}
+              aria-label={`Изменить способ оплаты. Сейчас: ${paymentMethod === 'transfer' ? 'перевод' : 'карта'}`}
+              className="mb-3 w-full flex gap-2.5 rounded-xl border border-gray-100 bg-gray-50/90 px-3 py-2.5 text-left transition-colors active:bg-gray-100/90 disabled:opacity-60 disabled:pointer-events-none"
+            >
+              <Info
+                size={17}
+                className="text-gray-400 flex-shrink-0 mt-0.5"
+                strokeWidth={2}
+                aria-hidden
+              />
+              <div className="min-w-0 flex-1 text-xs text-gray-600 leading-snug">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-medium text-gray-800 pr-1">Оплата при получении</p>
+                  <span className="flex flex-shrink-0 items-center gap-0.5 rounded-lg bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700">
+                    {paymentMethod === 'transfer' ? 'Перевод' : 'Карта'}
+                    <ChevronRight size={14} className="opacity-70" aria-hidden />
+                  </span>
+                </div>
+                <p className="mt-1">
+                  Сумма ориентировочная — по весу точный итог сообщит курьер при доставке.
+                </p>
+              </div>
+            </button>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-500">
                 {totalItems} {pluralize(totalItems)}

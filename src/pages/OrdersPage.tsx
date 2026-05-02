@@ -127,6 +127,13 @@ export function OrdersPage() {
             </div>
           )}
 
+          <div className="bg-white rounded-2xl p-4">
+            <p className="text-xs text-gray-500 mb-1">Оплата при получении</p>
+            <p className="text-sm font-medium text-gray-900">
+              {orderDetail.payment_method === 'card' ? 'Карта' : 'Перевод'}
+            </p>
+          </div>
+
           <div className="bg-white rounded-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-50">
               <p className="text-sm font-semibold">Товары</p>

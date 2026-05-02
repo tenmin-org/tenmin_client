@@ -13,6 +13,9 @@
         var tg = window.Telegram && window.Telegram.WebApp;
         if (!tg) return;
         tg.ready();
+        if (typeof tg.disableVerticalSwipes === 'function') {
+          tg.disableVerticalSwipes();
+        }
         tg.expand();
         if (typeof tg.requestFullscreen === 'function') {
           tg.requestFullscreen();

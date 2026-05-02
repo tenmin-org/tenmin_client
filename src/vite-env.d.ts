@@ -13,6 +13,10 @@ interface TelegramWebApp {
     start_param?: string;
   };
   ready: () => void;
+  /** Bot API 7.7+ — отключить закрытие/сворачивание вертикальным свайпом по контенту (шапку можно свайпать). */
+  disableVerticalSwipes?: () => void;
+  enableVerticalSwipes?: () => void;
+  isVerticalSwipesEnabled?: boolean;
   close: () => void;
   expand: () => void;
   /** Bot API 8.0+ — полноэкранный режим (не путать с expand). */

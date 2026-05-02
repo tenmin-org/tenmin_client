@@ -74,6 +74,9 @@ export interface OrderItem {
   product: ProductBrief;
 }
 
+/** Как клиент планирует оплатить при получении (сохраняется в заказе). */
+export type PaymentMethod = 'transfer' | 'card';
+
 /** GET /orders — без позиций, для быстрого списка */
 export interface OrderSummary {
   id: number;
@@ -81,6 +84,8 @@ export interface OrderSummary {
   status: string;
   comment: string | null;
   total_price: number;
+  /** С сервера с миграции; старые заказы без поля — считаем переводом */
+  payment_method?: PaymentMethod;
   created_at: string;
 }
 
@@ -90,6 +95,7 @@ export interface Order {
   status: string;
   comment: string | null;
   total_price: number;
+  payment_method?: PaymentMethod;
   items: OrderItem[];
   created_at: string;
 }

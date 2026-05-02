@@ -5,6 +5,7 @@ export async function createOrder(data: {
   store_id: number;
   items: { product_id: number; quantity: number; weight_grams?: number }[];
   comment?: string;
+  payment_method?: 'transfer' | 'card';
 }): Promise<Order> {
   const { data: order } = await apiClient.post<Order>('/orders/', data);
   return order;
