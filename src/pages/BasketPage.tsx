@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { ShoppingBag, CheckCircle2, Wallet } from 'lucide-react';
+import { ShoppingBag, Wallet } from 'lucide-react';
 import { createOrder } from '@/api/orders';
 import { updateCartItem, removeFromCart, clearCart as clearCartApi } from '@/api/cart';
 import { useCartStore } from '@/store/cartStore';
@@ -23,14 +23,13 @@ function pluralize(n: number): string {
 
 export function BasketPage() {
   const navigate = useNavigate();
-  const { haptic } = useTelegram();
+  const { haptic, closeMiniApp } = useTelegram();
   const items = useCartStore((s) => s.items);
   const storeId = useUserStore((s) => s.storeId);
   const getTotalPrice = useCartStore((s) => s.getTotalPrice);
   const getTotalItems = useCartStore((s) => s.getTotalItems);
 
   const [comment, setComment] = useState('');
-  const [orderSuccess, setOrderSuccess] = useState(false);
 
   const totalPrice = getTotalPrice();
   const totalItems = getTotalItems();
@@ -51,7 +50,12 @@ export function BasketPage() {
       haptic?.notificationOccurred('success');
       if (storeId) clearCartApi(storeId).catch(() => {});
       useCartStore.getState().clearCart();
-      setOrderSuccess(true);
+      // В Telegram Mini App можно закрыть Web App сразу после оформления.
+      if (window.Telegram?.WebApp) {
+        closeMiniApp();
+        return;
+      }
+      navigate('/orders');
     },
     onError: () => {
       haptic?.notificationOccurred('error');
@@ -75,34 +79,6 @@ export function BasketPage() {
       useCartStore.getState().setCart(cart);
     } catch { /* keep optimistic state */ }
   };
-
-  if (orderSuccess) {
-    return (
-      <div className="flex min-h-[80vh] flex-col items-center justify-center px-page pt-hero-safe text-center">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-[scale-in_0.3s_ease-out]">
-          <CheckCircle2 className="text-green-500" size={40} />
-        </div>
-        <h2 className="text-xl font-bold mb-2">Заказ создан!</h2>
-        <p className="text-gray-500 text-sm mb-8">
-          Ваш заказ принят и скоро будет обработан
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={() => navigate('/orders')}
-            className="px-6 py-2.5 bg-green-500 text-white rounded-xl font-medium text-sm active:scale-[0.97] transition-transform"
-          >
-            Мои заказы
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium text-sm active:scale-[0.97] transition-transform"
-          >
-            В магазин
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (items.length === 0) {
     return (

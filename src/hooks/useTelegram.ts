@@ -8,5 +8,9 @@ export function useTelegram() {
     startParam: tg?.initDataUnsafe?.start_param,
     colorScheme: tg?.colorScheme || 'light',
     haptic: tg?.HapticFeedback,
+    /** Закрывает Web App (доступно в Telegram Mini App). */
+    closeMiniApp: () => {
+      tg?.close();
+    },
   };
 }
