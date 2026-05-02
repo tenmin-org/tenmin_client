@@ -6,6 +6,8 @@ export interface Store {
   longitude: number | null;
   image_url: string | null;
   is_active: boolean;
+  is_new?: boolean;
+  delivery_price?: number;
 }
 
 export interface Category {
@@ -58,6 +60,7 @@ export interface Cart {
   id: number | null;
   store_id: number | null;
   items: CartItem[];
+  delivery_price?: number;
 }
 
 export interface OrderItem {

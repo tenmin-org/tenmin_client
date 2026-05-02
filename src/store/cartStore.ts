@@ -5,6 +5,8 @@ interface CartState {
   items: CartItem[];
   storeId: number | null;
   cartId: number | null;
+  /** Стоимость доставки магазина (из API корзины) */
+  deliveryPrice: number;
 
   /** Replace local state with server response */
   setCart: (cart: Cart) => void;
@@ -17,17 +19,25 @@ interface CartState {
 
   getTotalPrice: () => number;
   getTotalItems: () => number;
+  getGrandTotal: () => number;
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   storeId: null,
   cartId: null,
+  deliveryPrice: 0,
 
   setCart: (cart) =>
-    set({ items: cart.items, storeId: cart.store_id, cartId: cart.id }),
+    set({
+      items: cart.items,
+      storeId: cart.store_id,
+      cartId: cart.id,
+      deliveryPrice: Number(cart.delivery_price ?? 0),
+    }),
 
-  clearCart: () => set({ items: [], storeId: null, cartId: null }),
+  clearCart: () =>
+    set({ items: [], storeId: null, cartId: null, deliveryPrice: 0 }),
 
   optimisticAdd: (product) =>
     set((s) => {
@@ -65,4 +75,6 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   getTotalItems: () =>
     get().items.reduce((sum, i) => sum + i.quantity, 0),
+
+  getGrandTotal: () => get().getTotalPrice() + get().deliveryPrice,
 }));

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { ShoppingBag, Wallet } from 'lucide-react';
 import { createOrder } from '@/api/orders';
-import { updateCartItem, removeFromCart, clearCart as clearCartApi } from '@/api/cart';
+import { updateCartItem, removeFromCart, clearCart as clearCartApi, fetchCart } from '@/api/cart';
 import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { useTelegram } from '@/hooks/useTelegram';
@@ -28,11 +28,24 @@ export function BasketPage() {
   const storeId = useUserStore((s) => s.storeId);
   const getTotalPrice = useCartStore((s) => s.getTotalPrice);
   const getTotalItems = useCartStore((s) => s.getTotalItems);
+  const getGrandTotal = useCartStore((s) => s.getGrandTotal);
+  const deliveryPrice = useCartStore((s) => s.deliveryPrice);
 
   const [comment, setComment] = useState('');
 
+  useQuery({
+    queryKey: ['cart', storeId],
+    queryFn: async () => {
+      const cart = await fetchCart(storeId!);
+      useCartStore.getState().setCart(cart);
+      return cart;
+    },
+    enabled: !!storeId,
+  });
+
   const totalPrice = getTotalPrice();
   const totalItems = getTotalItems();
+  const grandTotal = getGrandTotal();
 
   const orderMutation = useMutation({
     mutationFn: () => {
@@ -133,11 +146,19 @@ export function BasketPage() {
               Оплата производится при получении заказа
             </p>
           </div>
-          <div className="flex justify-between items-center mb-3">
+          <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-500">
               {totalItems} {pluralize(totalItems)}
             </span>
             <span className="text-lg font-bold">{formatPrice(totalPrice)}</span>
+          </div>
+          <div className="flex justify-between items-center mb-2 text-sm">
+            <span className="text-gray-500">Доставка</span>
+            <span className="font-semibold">{formatPrice(deliveryPrice)}</span>
+          </div>
+          <div className="flex justify-between items-center mb-3 pt-2 border-t border-gray-100">
+            <span className="text-sm font-semibold text-gray-800">Итого</span>
+            <span className="text-lg font-bold">{formatPrice(grandTotal)}</span>
           </div>
           <button
             onClick={() => orderMutation.mutate()}

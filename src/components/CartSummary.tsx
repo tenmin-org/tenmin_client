@@ -14,11 +14,11 @@ function pluralize(n: number): string {
 export function CartSummary() {
   const navigate = useNavigate();
   const items = useCartStore((s) => s.items);
-  const getTotalPrice = useCartStore((s) => s.getTotalPrice);
   const getTotalItems = useCartStore((s) => s.getTotalItems);
+  const getGrandTotal = useCartStore((s) => s.getGrandTotal);
 
   const totalItems = getTotalItems();
-  const totalPrice = getTotalPrice();
+  const grandTotal = getGrandTotal();
 
   if (items.length === 0) return null;
 
@@ -34,7 +34,7 @@ export function CartSummary() {
             {totalItems} {pluralize(totalItems)}
           </span>
         </div>
-        <span className="font-bold">{formatPrice(totalPrice)}</span>
+        <span className="font-bold">{formatPrice(grandTotal)}</span>
       </button>
     </div>
   );
