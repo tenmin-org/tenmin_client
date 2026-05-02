@@ -54,6 +54,8 @@ export interface CartItem {
   product_id: number;
   quantity: number;
   product: Product;
+  /** Локально для товаров по кг; с API корзины не приходит. */
+  weight_grams?: number;
 }
 
 export interface Cart {
@@ -68,6 +70,7 @@ export interface OrderItem {
   product_id: number;
   quantity: number;
   price: number;
+  weight_grams?: number | null;
   product: ProductBrief;
 }
 

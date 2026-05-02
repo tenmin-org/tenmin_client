@@ -24,6 +24,7 @@ export function StorePage() {
   const [searchParams] = useSearchParams();
   const storeId = useUserStore((s) => s.storeId);
   const setStoreId = useUserStore((s) => s.setStoreId);
+  const hasFloatingCart = useCartStore((s) => s.items.length > 0);
 
   useEffect(() => {
     const paramId = searchParams.get('store_id');
@@ -145,7 +146,7 @@ export function StorePage() {
   }
 
   return (
-    <div className="pb-4">
+    <div className={hasFloatingCart ? 'pb-floating-cart' : 'pb-4'}>
       {store && (
         <HeroHeader
           compact

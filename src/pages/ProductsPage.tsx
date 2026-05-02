@@ -5,6 +5,7 @@ import { fetchCategories, fetchCategory } from '@/api/categories';
 import { fetchProducts } from '@/api/products';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useUserStore } from '@/store/userStore';
+import { useCartStore } from '@/store/cartStore';
 import { ProductCard } from '@/components/ProductCard';
 import { CategoryCard } from '@/components/CategoryCard';
 import { CartSummary } from '@/components/CartSummary';
@@ -19,6 +20,7 @@ export function ProductsPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   const storeId = useUserStore((s) => s.storeId);
+  const hasFloatingCart = useCartStore((s) => s.items.length > 0);
   const catId = Number(categoryId);
 
   const { data: categoryMeta } = useQuery({
@@ -103,7 +105,7 @@ export function ProductsPage() {
       : undefined;
 
   return (
-    <div className="pb-4">
+    <div className={hasFloatingCart ? 'pb-floating-cart' : 'pb-4'}>
       <PageHeader title={title} subtitle={subtitle} onBack={() => navigate(-1)} />
 
       <div className="px-page pt-4">

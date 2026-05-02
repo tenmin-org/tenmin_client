@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { SectionHeading } from '@/components/SectionHeading';
 import { EmptyState } from '@/components/EmptyState';
 import { formatPrice } from '@/utils/format';
+import { orderItemLineSubtotal } from '@/utils/cartPricing';
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending: { label: 'Ожидает', color: 'bg-yellow-100 text-yellow-700' },
@@ -130,37 +131,42 @@ export function OrdersPage() {
             <div className="px-4 py-3 border-b border-gray-50">
               <p className="text-sm font-semibold">Товары</p>
             </div>
-            {orderDetail.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0"
-              >
-                <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  {item.product?.image_url ? (
-                    <img
-                      src={item.product.image_url}
-                      alt={item.product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package className="text-gray-400" size={16} />
-                    </div>
-                  )}
+            {orderDetail.items.map((item) => {
+              const line = orderItemLineSubtotal(item);
+              const metaKg =
+                item.product?.measure === 'кг' &&
+                item.weight_grams != null &&
+                item.weight_grams > 0
+                  ? `${item.weight_grams} г × ${formatPrice(item.price)}/кг`
+                  : `${item.quantity} × ${formatPrice(item.price)}`;
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0"
+                >
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    {item.product?.image_url ? (
+                      <img
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="text-gray-400" size={16} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {item.product?.name ?? `Товар #${item.product_id}`}
+                    </p>
+                    <p className="text-xs text-gray-500">{metaKg}</p>
+                  </div>
+                  <span className="text-sm font-semibold">{formatPrice(line)}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {item.product?.name ?? `Товар #${item.product_id}`}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {item.quantity} × {formatPrice(item.price)}
-                  </p>
-                </div>
-                <span className="text-sm font-semibold">
-                  {formatPrice(item.price * item.quantity)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
 import { addToCart, updateCartItem, removeFromCart } from '@/api/cart';
 import { formatPriceAmount } from '@/utils/format';
+import { isKgProduct } from '@/utils/cartPricing';
 
 interface ProductCardProps {
   product: Product;
@@ -82,6 +83,11 @@ export const ProductCard = React.memo(function ProductCard({
         <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-1">
           {product.name}
         </h3>
+        {isKgProduct(product) && (
+          <p className="text-[11px] text-yellow-600 font-medium leading-snug mb-1.5">
+            Точный вес можно указать в корзине
+          </p>
+        )}
         {/* {product.description && (
           <p className="text-xs text-gray-500 line-clamp-1 mb-2">
             {product.description}

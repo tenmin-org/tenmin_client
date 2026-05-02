@@ -101,6 +101,10 @@ body {
   .bottom-above-tab-bar {
     bottom: var(--app-bottom-nav-offset);
   }
+  /* Запас под плавающую кнопку корзины (CartSummary), чтобы последние карточки не перекрывались */
+  .pb-floating-cart {
+    padding-bottom: calc(1rem + 4.5rem);
+  }
 }
 
 @keyframes slide-up {
