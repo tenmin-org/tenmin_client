@@ -2,7 +2,8 @@ import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ChevronRight, CreditCard, Info, Landmark, ShoppingBag } from 'lucide-react';
-import { createOrder } from '@/api/orders';
+import { createOrder, createYandexClaim } from '@/api/orders';
+import { fetchStore } from '@/api/stores';
 import { updateCartItem, removeFromCart, clearCart as clearCartApi, fetchCart } from '@/api/cart';
 import { useCartStore } from '@/store/cartStore';
 import { useUserStore } from '@/store/userStore';
@@ -35,6 +36,10 @@ export function BasketPage() {
 
   const [comment, setComment] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('transfer');
+  const [yandexClaimId, setYandexClaimId] = useState<string | null>(null);
+  const [yandexPrice, setYandexPrice] = useState<number | null>(null);
+  const [yandexLoading, setYandexLoading] = useState(false);
+  const [yandexError, setYandexError] = useState<string | null>(null);
   /** Нижняя панель с итогом перекрывает поле при открытой клавиатуре — прячем, пока в фокусе поле в корзине. */
   const [checkoutBarHidden, setCheckoutBarHidden] = useState(false);
   const cartFieldsRef = useRef<HTMLDivElement>(null);
@@ -113,6 +118,30 @@ export function BasketPage() {
     enabled: !!storeId,
   });
 
+  const { data: storeInfo } = useQuery({
+    queryKey: ['store', storeId],
+    queryFn: () => fetchStore(storeId!),
+    enabled: !!storeId,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const isYandexDelivery = storeInfo?.delivery_type === 'yandex';
+
+  const handleGetYandexPrice = async () => {
+    if (!storeId) return;
+    setYandexLoading(true);
+    setYandexError(null);
+    try {
+      const result = await createYandexClaim(storeId);
+      setYandexClaimId(result.claim_id);
+      setYandexPrice(result.price);
+    } catch {
+      setYandexError('Не удалось получить стоимость доставки. Попробуйте снова.');
+    } finally {
+      setYandexLoading(false);
+    }
+  };
+
   const totalPrice = getTotalPrice();
   const totalItems = getTotalItems();
   const grandTotal = getGrandTotal();
@@ -132,6 +161,13 @@ export function BasketPage() {
         }),
         comment: comment.trim() || undefined,
         payment_method: paymentMethod,
+        ...(isYandexDelivery && yandexClaimId
+          ? {
+              delivery_type: 'yandex' as const,
+              yandex_claim_id: yandexClaimId,
+              yandex_delivery_price: yandexPrice ?? undefined,
+            }
+          : {}),
       });
     },
     onSuccess: () => {
@@ -314,25 +350,54 @@ export function BasketPage() {
             </div>
             <div className="flex justify-between items-center mb-2 text-sm">
               <span className="text-gray-500">Доставка</span>
-              <span className="font-semibold tabular-nums">{formatPrice(deliveryPrice)}</span>
+              {isYandexDelivery ? (
+                <span className="font-semibold tabular-nums text-orange-500">
+                  {yandexPrice != null ? formatPrice(yandexPrice) : '—'}
+                </span>
+              ) : (
+                <span className="font-semibold tabular-nums">{formatPrice(deliveryPrice)}</span>
+              )}
             </div>
             <div className="flex justify-between items-center mb-3 pt-2 border-t border-gray-100">
               <span className="text-sm font-semibold text-gray-800">Итого</span>
               <span className="text-lg font-bold tabular-nums">
-                ≈&nbsp;{formatPrice(grandTotal)}
+                ≈&nbsp;{formatPrice(isYandexDelivery && yandexPrice != null ? totalPrice + yandexPrice : grandTotal)}
               </span>
             </div>
-            <button
-              onClick={() => orderMutation.mutate()}
-              disabled={orderMutation.isPending}
-              className="w-full py-3.5 bg-green-500 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform disabled:opacity-60"
-            >
-              {orderMutation.isPending ? 'Оформляем...' : 'Отправить курьеру'}
-            </button>
-            {orderMutation.isError && (
-              <p className="text-red-500 text-xs text-center mt-2">
-                Ошибка при создании заказа. Попробуйте снова.
-              </p>
+
+            {isYandexDelivery && yandexClaimId == null ? (
+              <>
+                <button
+                  onClick={handleGetYandexPrice}
+                  disabled={yandexLoading}
+                  className="w-full py-3.5 bg-orange-500 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform disabled:opacity-60"
+                >
+                  {yandexLoading ? 'Получаем цену...' : '🚖 Узнать стоимость доставки'}
+                </button>
+                {yandexError && (
+                  <p className="text-red-500 text-xs text-center mt-2">{yandexError}</p>
+                )}
+              </>
+            ) : (
+              <>
+                {isYandexDelivery && yandexPrice != null && (
+                  <p className="text-xs text-center text-orange-600 mb-2 font-medium">
+                    🚖 Яндекс Курьер · {formatPrice(yandexPrice)} · цена зафиксирована
+                  </p>
+                )}
+                <button
+                  onClick={() => orderMutation.mutate()}
+                  disabled={orderMutation.isPending}
+                  className="w-full py-3.5 bg-green-500 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform disabled:opacity-60"
+                >
+                  {orderMutation.isPending ? 'Оформляем...' : 'Отправить курьеру'}
+                </button>
+                {orderMutation.isError && (
+                  <p className="text-red-500 text-xs text-center mt-2">
+                    Ошибка при создании заказа. Попробуйте снова.
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>

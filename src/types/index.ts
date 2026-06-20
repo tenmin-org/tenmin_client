@@ -8,6 +8,8 @@ export interface Store {
   is_active: boolean;
   is_new?: boolean;
   delivery_price?: number;
+  /** "own" — своя доставка (по умолчанию), "yandex" — Яндекс Курьер */
+  delivery_type?: 'own' | 'yandex';
 }
 
 export interface Category {

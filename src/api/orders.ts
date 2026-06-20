@@ -1,11 +1,22 @@
 import apiClient from './client';
 import type { Order, OrderSummary } from '../types';
 
+export async function createYandexClaim(storeId: number): Promise<{ claim_id: string; price: number }> {
+  const { data } = await apiClient.post<{ claim_id: string; price: number }>(
+    '/orders/create-yandex-claim',
+    { store_id: storeId },
+  );
+  return data;
+}
+
 export async function createOrder(data: {
   store_id: number;
   items: { product_id: number; quantity: number; weight_grams?: number }[];
   comment?: string;
   payment_method?: 'transfer' | 'card';
+  delivery_type?: 'own' | 'yandex';
+  yandex_claim_id?: string;
+  yandex_delivery_price?: number;
 }): Promise<Order> {
   const { data: order } = await apiClient.post<Order>('/orders/', data);
   return order;
