@@ -13,7 +13,7 @@ export async function createOrder(data: {
   store_id: number;
   items: { product_id: number; quantity: number; weight_grams?: number }[];
   comment?: string;
-  payment_method?: 'transfer' | 'card';
+  payment_method?: 'transfer' | 'card' | 'remote';
   delivery_type?: 'own' | 'yandex';
   yandex_deeplink?: string;
   yandex_delivery_price?: number;

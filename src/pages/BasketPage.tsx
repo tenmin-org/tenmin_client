@@ -127,6 +127,10 @@ export function BasketPage() {
 
   const isYandexDelivery = storeInfo?.delivery_type === 'yandex';
 
+  useEffect(() => {
+    if (isYandexDelivery) setPaymentMethod('remote');
+  }, [isYandexDelivery]);
+
   const handleGetYandexPrice = async () => {
     if (!storeId) return;
     setYandexLoading(true);
@@ -271,40 +275,49 @@ export function BasketPage() {
         >
           <h2 className="text-sm font-semibold text-gray-900 mb-1">Способ оплаты</h2>
           <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-            Оплата при получении — укажите, как удобнее рассчитаться с курьером.
+            {isYandexDelivery
+              ? 'Доставка через Яндекс Go — оплата производится удалённо.'
+              : 'Оплата при получении — укажите, как удобнее рассчитаться с курьером.'}
           </p>
-          <div
-            className="flex rounded-2xl border border-gray-200 bg-gray-50/80 p-1 gap-1"
-            role="group"
-            aria-label="Способ оплаты при получении"
-          >
-            <button
-              type="button"
-              disabled={orderMutation.isPending}
-              onClick={() => setPaymentMethod('transfer')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
-                paymentMethod === 'transfer'
-                  ? 'bg-green-500 text-white shadow-sm'
-                  : 'text-gray-600 active:bg-gray-100/90'
-              }`}
+          {isYandexDelivery ? (
+            <div className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-orange-50 border border-orange-200 text-orange-700 font-semibold text-sm">
+              <CreditCard size={18} strokeWidth={1.75} className="opacity-80" />
+              Удалённая оплата
+            </div>
+          ) : (
+            <div
+              className="flex rounded-2xl border border-gray-200 bg-gray-50/80 p-1 gap-1"
+              role="group"
+              aria-label="Способ оплаты при получении"
             >
-              <Landmark size={18} strokeWidth={1.75} className="opacity-90" />
-              Перевод
-            </button>
-            <button
-              type="button"
-              disabled={orderMutation.isPending}
-              onClick={() => setPaymentMethod('card')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
-                paymentMethod === 'card'
-                  ? 'bg-green-500 text-white shadow-sm'
-                  : 'text-gray-600 active:bg-gray-100/90'
-              }`}
-            >
-              <CreditCard size={18} strokeWidth={1.75} className="opacity-90" />
-              Карта
-            </button>
-          </div>
+              <button
+                type="button"
+                disabled={orderMutation.isPending}
+                onClick={() => setPaymentMethod('transfer')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
+                  paymentMethod === 'transfer'
+                    ? 'bg-green-500 text-white shadow-sm'
+                    : 'text-gray-600 active:bg-gray-100/90'
+                }`}
+              >
+                <Landmark size={18} strokeWidth={1.75} className="opacity-90" />
+                Перевод
+              </button>
+              <button
+                type="button"
+                disabled={orderMutation.isPending}
+                onClick={() => setPaymentMethod('card')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
+                  paymentMethod === 'card'
+                    ? 'bg-green-500 text-white shadow-sm'
+                    : 'text-gray-600 active:bg-gray-100/90'
+                }`}
+              >
+                <CreditCard size={18} strokeWidth={1.75} className="opacity-90" />
+                Карта
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -317,8 +330,8 @@ export function BasketPage() {
             <button
               type="button"
               onClick={scrollToPaymentSection}
-              disabled={orderMutation.isPending}
-              aria-label={`Изменить способ оплаты. Сейчас: ${paymentMethod === 'transfer' ? 'перевод' : 'карта'}`}
+              disabled={orderMutation.isPending || isYandexDelivery}
+              aria-label={`Способ оплаты: ${paymentMethod === 'transfer' ? 'перевод' : paymentMethod === 'card' ? 'карта' : 'удалённая оплата'}`}
               className="mb-3 w-full flex gap-2.5 rounded-xl border border-gray-100 bg-gray-50/90 px-3 py-2.5 text-left transition-colors active:bg-gray-100/90 disabled:opacity-60 disabled:pointer-events-none"
             >
               <Info
@@ -329,10 +342,12 @@ export function BasketPage() {
               />
               <div className="min-w-0 flex-1 text-xs text-gray-600 leading-snug">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-medium text-gray-800 pr-1">Оплата при получении</p>
+                  <p className="font-medium text-gray-800 pr-1">
+                    {paymentMethod === 'remote' ? 'Удалённая оплата' : 'Оплата при получении'}
+                  </p>
                   <span className="flex flex-shrink-0 items-center gap-0.5 rounded-lg bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700">
-                    {paymentMethod === 'transfer' ? 'Перевод' : 'Карта'}
-                    <ChevronRight size={14} className="opacity-70" aria-hidden />
+                    {paymentMethod === 'transfer' ? 'Перевод' : paymentMethod === 'card' ? 'Карта' : 'Удалённая'}
+                    {!isYandexDelivery && <ChevronRight size={14} className="opacity-70" aria-hidden />}
                   </span>
                 </div>
                 <p className="mt-1">
@@ -372,7 +387,7 @@ export function BasketPage() {
                   disabled={yandexLoading}
                   className="w-full py-3.5 bg-orange-500 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-transform disabled:opacity-60"
                 >
-                  {yandexLoading ? 'Получаем цену...' : '🚖 Узнать стоимость доставки'}
+                  {yandexLoading ? 'Получаем цену...' : 'Узнать стоимость доставки'}
                 </button>
                 {yandexError && (
                   <p className="text-red-500 text-xs text-center mt-2">{yandexError}</p>
@@ -382,7 +397,7 @@ export function BasketPage() {
               <>
                 {isYandexDelivery && yandexPrice != null && (
                   <p className="text-xs text-center text-orange-600 mb-2 font-medium">
-                    🚖 Яндекс Курьер · {formatPrice(yandexPrice)} · цена зафиксирована
+                    🚖 Яндекс Курьер · ~{formatPrice(yandexPrice)} · цена приблизительная, может отличаться
                   </p>
                 )}
                 <button

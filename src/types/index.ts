@@ -77,7 +77,7 @@ export interface OrderItem {
 }
 
 /** Как клиент планирует оплатить при получении (сохраняется в заказе). */
-export type PaymentMethod = 'transfer' | 'card';
+export type PaymentMethod = 'transfer' | 'card' | 'remote';
 
 /** GET /orders — без позиций, для быстрого списка */
 export interface OrderSummary {
