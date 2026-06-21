@@ -121,21 +121,21 @@ export function OrdersPage() {
           )}
 
           {orderDetail.comment && (
-            <div className="bg-white rounded-2xl p-4">
-              <p className="text-xs text-gray-500 mb-1">Комментарий</p>
+            <div className="bg-white dark:bg-zinc-800 rounded-2xl p-4">
+              <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Комментарий</p>
               <p className="text-sm">{orderDetail.comment}</p>
             </div>
           )}
 
-          <div className="bg-white rounded-2xl p-4">
-            <p className="text-xs text-gray-500 mb-1">Оплата при получении</p>
-            <p className="text-sm font-medium text-gray-900">
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl p-4">
+            <p className="text-xs text-gray-500 dark:text-zinc-400 mb-1">Оплата при получении</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-zinc-100">
               {orderDetail.payment_method === 'card' ? 'Карта' : 'Перевод'}
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-50">
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-50 dark:border-zinc-700">
               <p className="text-sm font-semibold">Товары</p>
             </div>
             {orderDetail.items.map((item) => {
@@ -149,9 +149,9 @@ export function OrdersPage() {
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0"
+                  className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 dark:border-zinc-700 last:border-0"
                 >
-                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-zinc-700 flex-shrink-0">
                     {item.product?.image_url ? (
                       <img
                         src={item.product.image_url}
@@ -160,7 +160,7 @@ export function OrdersPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Package className="text-gray-400" size={16} />
+                        <Package className="text-gray-400 dark:text-zinc-500" size={16} />
                       </div>
                     )}
                   </div>
@@ -168,7 +168,7 @@ export function OrdersPage() {
                     <p className="text-sm font-medium truncate">
                       {item.product?.name ?? `Товар #${item.product_id}`}
                     </p>
-                    <p className="text-xs text-gray-500">{metaKg}</p>
+                    <p className="text-xs text-gray-500 dark:text-zinc-400">{metaKg}</p>
                   </div>
                   <span className="text-sm font-semibold">{formatPrice(line)}</span>
                 </div>
@@ -203,27 +203,27 @@ export function OrdersPage() {
         {!isLoading && orders && orders.length > 0 && (
           <div className="px-page">
             <SectionHeading>Ваши заказы</SectionHeading>
-            <div className="rounded-[14px] bg-gray-100/90 p-2 shadow-inner shadow-gray-200/40">
+            <div className="rounded-[14px] bg-gray-100/90 dark:bg-zinc-800/90 p-2 shadow-inner shadow-gray-200/40 dark:shadow-zinc-900/40">
               <div className="space-y-2">
                 {orders.map((order) => (
                   <div
                     key={order.id}
                     onClick={() => navigate(`/orders/${order.id}`)}
-                    className="cursor-pointer rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/[0.04] active:scale-[0.99] transition-transform"
+                    className="cursor-pointer rounded-xl bg-white dark:bg-zinc-700 p-4 shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.04] active:scale-[0.99] transition-transform"
                   >
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <span className="text-sm font-semibold">Заказ #{order.id}</span>
                       <StatusBadge status={order.status} />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-zinc-400">
                         {formatDate(order.created_at)}
                       </span>
                       <div className="flex items-center gap-1">
                         <span className="text-sm font-bold tabular-nums">
                           {formatPrice(order.total_price)}
                         </span>
-                        <ChevronRight className="text-gray-400" size={16} />
+                        <ChevronRight className="text-gray-400 dark:text-zinc-500" size={16} />
                       </div>
                     </div>
                   </div>

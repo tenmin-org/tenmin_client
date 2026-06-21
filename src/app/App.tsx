@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MainLayout } from '@/layouts/MainLayout';
@@ -38,11 +38,26 @@ function AppInit() {
   return null;
 }
 
+function TelegramThemeSync() {
+  useLayoutEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    const apply = () => {
+      const isDark = tg?.colorScheme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+    };
+    apply();
+    tg?.onEvent?.('themeChanged', apply);
+    return () => tg?.offEvent?.('themeChanged', apply);
+  }, []);
+  return null;
+}
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AppInit />
+        <TelegramThemeSync />
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<StorePage />} />

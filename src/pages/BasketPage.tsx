@@ -256,14 +256,14 @@ export function BasketPage() {
         </div>
 
         <div className="px-page mt-6 scroll-mt-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-2">Комментарии</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-zinc-100 mb-2">Комментарии</h2>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             onFocus={hideCheckoutBar}
             onBlur={scheduleShowCheckoutBar}
             placeholder="Дополнительные товары, пожелания к доставке…"
-            className="w-full min-h-[5.5rem] p-3.5 bg-white rounded-2xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-green-400 transition-colors"
+            className="w-full min-h-[5.5rem] p-3.5 bg-white dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 rounded-2xl border border-gray-200 dark:border-zinc-700 text-sm resize-none focus:outline-none focus:border-green-400 transition-colors"
             rows={4}
           />
         </div>
@@ -273,8 +273,8 @@ export function BasketPage() {
           id="basket-payment-method"
           className="px-page mt-6 pb-10 scroll-mt-36"
         >
-          <h2 className="text-sm font-semibold text-gray-900 mb-1">Способ оплаты</h2>
-          <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-zinc-100 mb-1">Способ оплаты</h2>
+          <p className="text-xs text-gray-500 dark:text-zinc-400 mb-3 leading-relaxed">
             {isYandexDelivery
               ? 'Доставка через Яндекс Go — оплата производится удалённо.'
               : 'Оплата при получении — укажите, как удобнее рассчитаться с курьером.'}
@@ -286,7 +286,7 @@ export function BasketPage() {
             </div>
           ) : (
             <div
-              className="flex rounded-2xl border border-gray-200 bg-gray-50/80 p-1 gap-1"
+              className="flex rounded-2xl border border-gray-200 dark:border-zinc-700 bg-gray-50/80 dark:bg-zinc-800 p-1 gap-1"
               role="group"
               aria-label="Способ оплаты при получении"
             >
@@ -297,7 +297,7 @@ export function BasketPage() {
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
                   paymentMethod === 'transfer'
                     ? 'bg-green-500 text-white shadow-sm'
-                    : 'text-gray-600 active:bg-gray-100/90'
+                    : 'text-gray-600 dark:text-zinc-300 active:bg-gray-100/90 dark:active:bg-zinc-700/90'
                 }`}
               >
                 <Landmark size={18} strokeWidth={1.75} className="opacity-90" />
@@ -310,7 +310,7 @@ export function BasketPage() {
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${
                   paymentMethod === 'card'
                     ? 'bg-green-500 text-white shadow-sm'
-                    : 'text-gray-600 active:bg-gray-100/90'
+                    : 'text-gray-600 dark:text-zinc-300 active:bg-gray-100/90 dark:active:bg-zinc-700/90'
                 }`}
               >
                 <CreditCard size={18} strokeWidth={1.75} className="opacity-90" />
@@ -324,25 +324,25 @@ export function BasketPage() {
       {!checkoutBarHidden && (
         <div
           ref={checkoutDockRef}
-          className="fixed left-0 right-0 z-30 px-page pt-2 pb-4 bg-gradient-to-t from-gray-50 via-gray-50 bottom-above-tab-bar"
+          className="fixed left-0 right-0 z-30 px-page pt-2 pb-4 bg-gradient-to-t from-[var(--tg-theme-bg-color)] via-[var(--tg-theme-bg-color)] bottom-above-tab-bar"
         >
-          <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl p-4 shadow-lg border border-gray-100 dark:border-zinc-700">
             <button
               type="button"
               onClick={scrollToPaymentSection}
               disabled={orderMutation.isPending || isYandexDelivery}
               aria-label={`Способ оплаты: ${paymentMethod === 'transfer' ? 'перевод' : paymentMethod === 'card' ? 'карта' : 'удалённая оплата'}`}
-              className="mb-3 w-full flex gap-2.5 rounded-xl border border-gray-100 bg-gray-50/90 px-3 py-2.5 text-left transition-colors active:bg-gray-100/90 disabled:opacity-60 disabled:pointer-events-none"
+              className="mb-3 w-full flex gap-2.5 rounded-xl border border-gray-100 dark:border-zinc-700 bg-gray-50/90 dark:bg-zinc-700/60 px-3 py-2.5 text-left transition-colors active:bg-gray-100/90 dark:active:bg-zinc-700 disabled:opacity-60 disabled:pointer-events-none"
             >
               <Info
                 size={17}
-                className="text-gray-400 flex-shrink-0 mt-0.5"
+                className="text-gray-400 dark:text-zinc-500 flex-shrink-0 mt-0.5"
                 strokeWidth={2}
                 aria-hidden
               />
-              <div className="min-w-0 flex-1 text-xs text-gray-600 leading-snug">
+              <div className="min-w-0 flex-1 text-xs text-gray-600 dark:text-zinc-400 leading-snug">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-medium text-gray-800 pr-1">
+                  <p className="font-medium text-gray-800 dark:text-zinc-200 pr-1">
                     {paymentMethod === 'remote' ? 'Удалённая оплата' : 'Оплата при получении'}
                   </p>
                   <span className="flex flex-shrink-0 items-center gap-0.5 rounded-lg bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700">
@@ -356,7 +356,7 @@ export function BasketPage() {
               </div>
             </button>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-zinc-400">
                 {totalItems} {pluralize(totalItems)}
               </span>
               <span className="text-lg font-bold tabular-nums">
@@ -364,7 +364,7 @@ export function BasketPage() {
               </span>
             </div>
             <div className="flex justify-between items-center mb-2 text-sm">
-              <span className="text-gray-500">Доставка</span>
+              <span className="text-gray-500 dark:text-zinc-400">Доставка</span>
               {isYandexDelivery ? (
                 <span className="font-semibold tabular-nums text-orange-500">
                   {yandexPrice != null ? formatPrice(yandexPrice) : '—'}
@@ -373,8 +373,8 @@ export function BasketPage() {
                 <span className="font-semibold tabular-nums">{formatPrice(deliveryPrice)}</span>
               )}
             </div>
-            <div className="flex justify-between items-center mb-3 pt-2 border-t border-gray-100">
-              <span className="text-sm font-semibold text-gray-800">Итого</span>
+            <div className="flex justify-between items-center mb-3 pt-2 border-t border-gray-100 dark:border-zinc-700">
+              <span className="text-sm font-semibold text-gray-800 dark:text-zinc-100">Итого</span>
               <span className="text-lg font-bold tabular-nums">
                 ≈&nbsp;{formatPrice(isYandexDelivery && yandexPrice != null ? Number(totalPrice) + Number(yandexPrice) : grandTotal)}
               </span>

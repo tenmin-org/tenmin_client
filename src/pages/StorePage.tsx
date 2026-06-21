@@ -132,7 +132,7 @@ export function StorePage() {
         {!storesLoading && stores && stores.length > 0 && (
           <div className="px-page">
             <SectionHeading>Все магазины</SectionHeading>
-            <div className="rounded-[14px] bg-gray-100/90 p-2 shadow-inner shadow-gray-200/40">
+            <div className="rounded-[14px] bg-gray-100/90 dark:bg-zinc-800/90 p-2 shadow-inner shadow-gray-200/40 dark:shadow-zinc-900/40">
               <div className="space-y-2">
                 {stores.map((s) => (
                   <StoreCard key={s.id} store={s} onClick={() => setStoreId(s.id)} />

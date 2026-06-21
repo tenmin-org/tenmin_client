@@ -88,7 +88,7 @@ export const CartItemCard = React.memo(function CartItemCard({
   }, [commitWeight, onCartFieldBlur]);
 
   return (
-    <div className="flex gap-3 p-3 bg-white rounded-2xl shadow-sm">
+    <div className="flex gap-3 p-3 bg-white dark:bg-zinc-800 rounded-2xl shadow-sm">
       <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
         {item.product.image_url ? (
           <img
@@ -97,8 +97,8 @@ export const CartItemCard = React.memo(function CartItemCard({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-            <Package className="text-gray-400" size={24} />
+          <div className="w-full h-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center">
+            <Package className="text-gray-400 dark:text-zinc-500" size={24} />
           </div>
         )}
       </div>
@@ -142,14 +142,14 @@ export const CartItemCard = React.memo(function CartItemCard({
                       commitWeight();
                       onCartFieldBlur?.();
                     }}
-                    className="w-24 px-2 py-1 rounded-lg border border-gray-200 text-sm font-medium tabular-nums focus:outline-none focus:border-green-400 disabled:opacity-50"
+                    className="w-24 px-2 py-1 rounded-lg border border-gray-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-sm font-medium tabular-nums focus:outline-none focus:border-green-400 disabled:opacity-50"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={closeWeightEditor}
                   disabled={disabled}
-                  className="text-xs font-medium text-gray-500 px-2 py-1 rounded-lg bg-gray-100 active:scale-95 disabled:opacity-50"
+                  className="text-xs font-medium text-gray-500 dark:text-zinc-400 px-2 py-1 rounded-lg bg-gray-100 dark:bg-zinc-700 active:scale-95 disabled:opacity-50"
                 >
                   Свернуть
                 </button>
@@ -176,7 +176,7 @@ export const CartItemCard = React.memo(function CartItemCard({
                 : onUpdate(item.product_id, item.quantity - 1)
             }
             disabled={disabled}
-            className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
+            className="w-7 h-7 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center active:scale-90 transition-transform"
           >
             <Minus size={14} />
           </button>

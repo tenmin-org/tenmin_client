@@ -58,7 +58,7 @@ export const ProductCard = React.memo(function ProductCard({
   }, [storeId, product.id, quantity, sync]);
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm">
       <div className="aspect-square relative">
         {product.image_url ? (
           <img
@@ -68,8 +68,8 @@ export const ProductCard = React.memo(function ProductCard({
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-            <Package className="text-gray-400" size={40} />
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-700 dark:to-zinc-600 flex items-center justify-center">
+            <Package className="text-gray-400 dark:text-zinc-400" size={40} />
           </div>
         )}
         {!product.is_available && (
@@ -113,7 +113,7 @@ export const ProductCard = React.memo(function ProductCard({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleDecrease}
-                  className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center active:scale-90 transition-transform"
+                  className="w-7 h-7 rounded-full bg-gray-100 dark:bg-zinc-700 flex items-center justify-center active:scale-90 transition-transform"
                 >
                   <Minus size={14} />
                 </button>
