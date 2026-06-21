@@ -103,9 +103,9 @@ export function OrdersPage() {
         />
 
         <div className="px-page pt-4 space-y-4">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <StatusBadge status={orderDetail.status} />
-            <span className="font-bold text-right tabular-nums flex-shrink-0">
+            <span className="text-lg font-bold text-right tabular-nums flex-shrink-0 text-gray-900 dark:text-white">
               {formatPrice(orderDetail.total_price)}
             </span>
           </div>
@@ -114,7 +114,7 @@ export function OrdersPage() {
             <button
               onClick={() => cancelMutation.mutate(orderDetail.id)}
               disabled={cancelMutation.isPending}
-              className="w-full rounded-2xl bg-red-50 text-red-600 py-3 text-sm font-semibold active:scale-[0.98] transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 py-3 text-sm font-semibold active:scale-[0.98] transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {cancelMutation.isPending ? 'Отмена...' : 'Отменить заказ'}
             </button>
