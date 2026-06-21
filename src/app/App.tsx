@@ -40,14 +40,8 @@ function AppInit() {
 
 function TelegramThemeSync() {
   useLayoutEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    const apply = () => {
-      const isDark = tg?.colorScheme === 'dark';
-      document.documentElement.classList.toggle('dark', isDark);
-    };
-    apply();
-    tg?.onEvent?.('themeChanged', apply);
-    return () => tg?.offEvent?.('themeChanged', apply);
+    const isDark = window.Telegram?.WebApp?.colorScheme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
   }, []);
   return null;
 }
