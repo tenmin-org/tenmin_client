@@ -1,8 +1,8 @@
 import apiClient from './client';
 import type { Order, OrderSummary } from '../types';
 
-export async function createYandexClaim(storeId: number): Promise<{ claim_id: string; price: number }> {
-  const { data } = await apiClient.post<{ claim_id: string; price: number }>(
+export async function getYandexDeliveryInfo(storeId: number): Promise<{ price: number; deeplink: string }> {
+  const { data } = await apiClient.post<{ price: number; deeplink: string }>(
     '/orders/create-yandex-claim',
     { store_id: storeId },
   );
@@ -15,7 +15,7 @@ export async function createOrder(data: {
   comment?: string;
   payment_method?: 'transfer' | 'card';
   delivery_type?: 'own' | 'yandex';
-  yandex_claim_id?: string;
+  yandex_deeplink?: string;
   yandex_delivery_price?: number;
 }): Promise<Order> {
   const { data: order } = await apiClient.post<Order>('/orders/', data);

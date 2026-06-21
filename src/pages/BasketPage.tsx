@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ChevronRight, CreditCard, Info, Landmark, ShoppingBag } from 'lucide-react';
-import { createOrder, createYandexClaim } from '@/api/orders';
+import { createOrder, getYandexDeliveryInfo } from '@/api/orders';
 import { fetchStore } from '@/api/stores';
 import { updateCartItem, removeFromCart, clearCart as clearCartApi, fetchCart } from '@/api/cart';
 import { useCartStore } from '@/store/cartStore';
@@ -36,7 +36,7 @@ export function BasketPage() {
 
   const [comment, setComment] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('transfer');
-  const [yandexClaimId, setYandexClaimId] = useState<string | null>(null);
+  const [yandexDeeplink, setYandexDeeplink] = useState<string | null>(null);
   const [yandexPrice, setYandexPrice] = useState<number | null>(null);
   const [yandexLoading, setYandexLoading] = useState(false);
   const [yandexError, setYandexError] = useState<string | null>(null);
@@ -132,9 +132,9 @@ export function BasketPage() {
     setYandexLoading(true);
     setYandexError(null);
     try {
-      const result = await createYandexClaim(storeId);
-      setYandexClaimId(result.claim_id);
-      setYandexPrice(result.price);
+      const result = await getYandexDeliveryInfo(storeId);
+      setYandexDeeplink(result.deeplink);
+      setYandexPrice(Number(result.price));
     } catch {
       setYandexError('Не удалось получить стоимость доставки. Попробуйте снова.');
     } finally {
@@ -161,10 +161,10 @@ export function BasketPage() {
         }),
         comment: comment.trim() || undefined,
         payment_method: paymentMethod,
-        ...(isYandexDelivery && yandexClaimId
+        ...(isYandexDelivery && yandexDeeplink
           ? {
               delivery_type: 'yandex' as const,
-              yandex_claim_id: yandexClaimId,
+              yandex_deeplink: yandexDeeplink,
               yandex_delivery_price: yandexPrice ?? undefined,
             }
           : {}),
@@ -361,11 +361,11 @@ export function BasketPage() {
             <div className="flex justify-between items-center mb-3 pt-2 border-t border-gray-100">
               <span className="text-sm font-semibold text-gray-800">Итого</span>
               <span className="text-lg font-bold tabular-nums">
-                ≈&nbsp;{formatPrice(isYandexDelivery && yandexPrice != null ? totalPrice + yandexPrice : grandTotal)}
+                ≈&nbsp;{formatPrice(isYandexDelivery && yandexPrice != null ? Number(totalPrice) + Number(yandexPrice) : grandTotal)}
               </span>
             </div>
 
-            {isYandexDelivery && yandexClaimId == null ? (
+            {isYandexDelivery && yandexDeeplink == null ? (
               <>
                 <button
                   onClick={handleGetYandexPrice}
