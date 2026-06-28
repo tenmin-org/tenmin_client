@@ -277,11 +277,11 @@ export function BasketPage() {
         >
           <h2 className="text-sm font-semibold text-gray-900 dark:text-zinc-100 mb-1">Способ оплаты</h2>
           <p className="text-xs text-gray-500 dark:text-zinc-400 mb-3 leading-relaxed">
-            {isYandexDelivery
-              ? 'Доставка через Яндекс Go — оплата производится удалённо.'
+            {paymentMethod === 'remote'
+              ? 'Оплата производится удалённо.'
               : 'Оплата при получении — укажите, как удобнее рассчитаться с курьером.'}
           </p>
-          {isYandexDelivery ? (
+          {paymentMethod === 'remote' ? (
             <div className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-orange-50 border border-orange-200 text-orange-700 font-semibold text-sm">
               <CreditCard size={18} strokeWidth={1.75} className="opacity-80" />
               Удалённая оплата
