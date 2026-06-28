@@ -10,6 +10,9 @@ export interface Store {
   delivery_price?: number;
   /** "own" — своя доставка (по умолчанию), "yandex" — Яндекс Курьер */
   delivery_type?: 'own' | 'yandex';
+  /** "transfer" — перевод, "remote" — удалённая оплата */
+  payment_type?: 'transfer' | 'remote';
+  payment_phone?: string | null;
 }
 
 export interface Category {

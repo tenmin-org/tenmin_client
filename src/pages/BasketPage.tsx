@@ -128,8 +128,10 @@ export function BasketPage() {
   const isYandexDelivery = storeInfo?.delivery_type === 'yandex';
 
   useEffect(() => {
-    if (isYandexDelivery) setPaymentMethod('remote');
-  }, [isYandexDelivery]);
+    if (storeInfo?.payment_type) {
+      setPaymentMethod(storeInfo.payment_type);
+    }
+  }, [storeInfo?.payment_type]);
 
   const handleGetYandexPrice = async () => {
     if (!storeId) return;
